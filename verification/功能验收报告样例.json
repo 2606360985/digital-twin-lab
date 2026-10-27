@@ -1,0 +1,6586 @@
+{
+  "title": "泵电流监测单元实验报告",
+  "dataset": "pump-labelled-40s-v2.0",
+  "exportedAt": "2026-10-27T01:53:15.592Z",
+  "currentConfigAccepted": true,
+  "automatic": {
+    "score": 70,
+    "max": 70,
+    "results": [
+      {
+        "id": "binding",
+        "title": "绑定错配与修复",
+        "max": 10,
+        "earned": 10,
+        "trialIds": [
+          1,
+          2
+        ],
+        "detail": "只改泵模型绑定，保存错误及修复关联链。"
+      },
+      {
+        "id": "field",
+        "title": "字段错配与修复",
+        "max": 10,
+        "earned": 10,
+        "trialIds": [
+          3,
+          4
+        ],
+        "detail": "只改字段，观察无效质量及修复结果。"
+      },
+      {
+        "id": "period",
+        "title": "发布周期对照",
+        "max": 10,
+        "earned": 10,
+        "trialIds": [
+          5,
+          6
+        ],
+        "detail": "除发布周期外配置一致，两次完整回放并记录观察。"
+      },
+      {
+        "id": "strategy",
+        "title": "三种规则策略",
+        "max": 25,
+        "earned": 25,
+        "trialIds": [
+          7,
+          8,
+          9
+        ],
+        "detail": "同一配置比较三种策略，验证尖峰抑制、持续检测及减少切换。"
+      },
+      {
+        "id": "incident",
+        "title": "事件闭环",
+        "max": 10,
+        "earned": 10,
+        "trialIds": [
+          9
+        ],
+        "detail": "有效滞回策略事件均完成确认、恢复及关闭。"
+      },
+      {
+        "id": "transfer",
+        "title": "独立迁移",
+        "max": 5,
+        "earned": 5,
+        "trialIds": [
+          10
+        ],
+        "detail": "新台账修复后完整回放，配置与当前一致。"
+      }
+    ]
+  },
+  "teacher": {
+    "score": 0,
+    "max": 30,
+    "current": false,
+    "review": {
+      "reviewer": "软件功能验收样例（非真实教师评价）",
+      "explanation": 18,
+      "limits": 8,
+      "feedback": "仅用于检查人工录分与版本失效功能，不作为学生成绩或教学效果证据。",
+      "trialIds": [
+        9
+      ],
+      "basis": "56350:61744027:3540998663",
+      "at": "2026-10-27T01:48:15.101Z"
+    }
+  },
+  "submitted": false,
+  "conclusions": {
+    "mapping": "试验1—2只改泵绑定，模型读数由64%液位变为5.2 A电流。试验3—4只改字段，错误字段无有效告警，修复后14秒触发37秒恢复。",
+    "period": "试验5发布40点可见短尖峰，试验6发布14点漏显尖峰；源事件仍14秒触发37秒恢复，因此发布频率不改变源检测输入。",
+    "strategy": "试验7即时策略误触发1次且8次切换；试验8持续策略误触发0、延迟3秒、6次切换；试验9加入滞回后仅2次切换，37秒恢复。",
+    "transfer": "试验10保留P-207新台账，修复泵模型绑定换热器和错误液位字段后，正确显示电流并检出持续事件。",
+    "limits": "本报告是软件功能验收样例，不是真实学生试教。固定教学数据与事件标注不能用于生产诊断，单数据包不代表普遍性能；本地评分无身份认证。"
+  },
+  "archive": {
+    "version": 2,
+    "scenarioId": "pump-core",
+    "config": {
+      "assets": [
+        {
+          "id": "tank",
+          "code": "T-201",
+          "name": "储罐"
+        },
+        {
+          "id": "pump",
+          "code": "P-207",
+          "name": "离心泵"
+        },
+        {
+          "id": "exchanger",
+          "code": "HX-209",
+          "name": "换热器"
+        }
+      ],
+      "bindings": {
+        "tank": "tank",
+        "pump": "pump",
+        "exchanger": "exchanger"
+      },
+      "point": {
+        "field": "motor_i",
+        "type": "number",
+        "unit": "A",
+        "min": 0,
+        "max": 20
+      },
+      "period": 1,
+      "strategy": "hysteresis",
+      "rule": {
+        "high": 8,
+        "duration": 3,
+        "low": 7,
+        "recoveryDuration": 2
+      }
+    },
+    "trials": [
+      {
+        "id": 1,
+        "kind": "mapping",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "tank",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+        "predictionHistory": [
+          {
+            "text": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+            "at": "2026-10-27T01:46:07.123Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:46:07.415Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 14,
+            "type": "trigger"
+          },
+          {
+            "tick": 37,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 14,
+            "recoveredAt": 37,
+            "acknowledgedAt": null,
+            "closedAt": null
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 64,
+            "model": "pump",
+            "asset": "tank",
+            "code": "T-001",
+            "field": "tank_level",
+            "unit": "%",
+            "value": 64,
+            "quality": "有效",
+            "note": "三维泵实际关联T-001储罐，读数64%，不是电流A。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 2,
+        "kind": "mapping",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+        "predictionHistory": [
+          {
+            "text": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+            "at": "2026-10-27T01:46:07.123Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:46:30.468Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 14,
+            "type": "trigger"
+          },
+          {
+            "tick": 37,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 14,
+            "recoveredAt": 37,
+            "acknowledgedAt": null,
+            "closedAt": null
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 5.2,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-001",
+            "field": "motor_i",
+            "unit": "A",
+            "value": 5.2,
+            "quality": "有效",
+            "note": "修复后泵模型关联P-001，读数5.2 A，源字段motor_i。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 3,
+        "kind": "mapping",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+        "predictionHistory": [
+          {
+            "text": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+            "at": "2026-10-27T01:46:07.123Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:46:31.437Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [],
+        "incidents": [],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 64,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-001",
+            "field": "tank_level",
+            "unit": "%",
+            "value": 64,
+            "quality": "字段与泵电流不匹配，不能作为有效告警输入。",
+            "note": "字段错误时源读数64%，字典A不一致，不再产生有效电流告警。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 4,
+        "kind": "mapping",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+        "predictionHistory": [
+          {
+            "text": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+            "at": "2026-10-27T01:46:07.123Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:46:32.384Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 14,
+            "type": "trigger"
+          },
+          {
+            "tick": 37,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 14,
+            "recoveredAt": 37,
+            "acknowledgedAt": null,
+            "closedAt": null
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 5.2,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-001",
+            "field": "motor_i",
+            "unit": "A",
+            "value": 5.2,
+            "quality": "有效",
+            "note": "恢复motor_i后质量有效，14秒触发37秒恢复。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 5,
+        "kind": "period",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "相同输入下1秒发布40点，3秒发布较少并漏掉短尖峰，告警时刻相同。",
+        "predictionHistory": [
+          {
+            "text": "相同输入下1秒发布40点，3秒发布较少并漏掉短尖峰，告警时刻相同。",
+            "at": "2026-10-27T01:47:00.125Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:47:00.408Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 14,
+            "type": "trigger"
+          },
+          {
+            "tick": 37,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 14,
+            "recoveredAt": 37,
+            "acknowledgedAt": null,
+            "closedAt": null
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 5.2,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-001",
+            "field": "motor_i",
+            "unit": "A",
+            "value": 5.2,
+            "quality": "有效",
+            "note": "1秒发布40点，短尖峰可见；14秒触发37秒恢复。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 6,
+        "kind": "period",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "相同输入下1秒发布40点，3秒发布较少并漏掉短尖峰，告警时刻相同。",
+        "predictionHistory": [
+          {
+            "text": "相同输入下1秒发布40点，3秒发布较少并漏掉短尖峰，告警时刻相同。",
+            "at": "2026-10-27T01:47:00.125Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:47:01.357Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 14,
+            "type": "trigger"
+          },
+          {
+            "tick": 37,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 14,
+            "recoveredAt": 37,
+            "acknowledgedAt": null,
+            "closedAt": null
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 5.2,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-001",
+            "field": "motor_i",
+            "unit": "A",
+            "value": 5.2,
+            "quality": "有效",
+            "note": "3秒发布14点，5—6秒尖峰未见，但14秒触发37秒恢复不变。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 7,
+        "kind": "strategy",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "threshold",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "即时阈值会响应尖峰；持续条件增加3秒延迟；滞回将减少临界波动的状态切换。",
+        "predictionHistory": [
+          {
+            "text": "即时阈值会响应尖峰；持续条件增加3秒延迟；滞回将减少临界波动的状态切换。",
+            "at": "2026-10-27T01:47:16.775Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:47:17.105Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 5,
+            "type": "trigger"
+          },
+          {
+            "tick": 7,
+            "type": "recover"
+          },
+          {
+            "tick": 11,
+            "type": "trigger"
+          },
+          {
+            "tick": 19,
+            "type": "recover"
+          },
+          {
+            "tick": 23,
+            "type": "trigger"
+          },
+          {
+            "tick": 27,
+            "type": "recover"
+          },
+          {
+            "tick": 31,
+            "type": "trigger"
+          },
+          {
+            "tick": 35,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 5,
+            "recoveredAt": 7,
+            "acknowledgedAt": null,
+            "closedAt": null
+          },
+          {
+            "id": 2,
+            "triggeredAt": 11,
+            "recoveredAt": 19,
+            "acknowledgedAt": null,
+            "closedAt": null
+          },
+          {
+            "id": 3,
+            "triggeredAt": 23,
+            "recoveredAt": 27,
+            "acknowledgedAt": null,
+            "closedAt": null
+          },
+          {
+            "id": 4,
+            "triggeredAt": 31,
+            "recoveredAt": 35,
+            "acknowledgedAt": null,
+            "closedAt": null
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 5.2,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-001",
+            "field": "motor_i",
+            "unit": "A",
+            "value": 5.2,
+            "quality": "有效",
+            "note": "即时策略5秒误触发，检测无延迟，总计8次切换。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 8,
+        "kind": "strategy",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "persistence",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "即时阈值会响应尖峰；持续条件增加3秒延迟；滞回将减少临界波动的状态切换。",
+        "predictionHistory": [
+          {
+            "text": "即时阈值会响应尖峰；持续条件增加3秒延迟；滞回将减少临界波动的状态切换。",
+            "at": "2026-10-27T01:47:16.775Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:47:18.055Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 14,
+            "type": "trigger"
+          },
+          {
+            "tick": 21,
+            "type": "recover"
+          },
+          {
+            "tick": 26,
+            "type": "trigger"
+          },
+          {
+            "tick": 29,
+            "type": "recover"
+          },
+          {
+            "tick": 34,
+            "type": "trigger"
+          },
+          {
+            "tick": 37,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 14,
+            "recoveredAt": 21,
+            "acknowledgedAt": null,
+            "closedAt": null
+          },
+          {
+            "id": 2,
+            "triggeredAt": 26,
+            "recoveredAt": 29,
+            "acknowledgedAt": null,
+            "closedAt": null
+          },
+          {
+            "id": 3,
+            "triggeredAt": 34,
+            "recoveredAt": 37,
+            "acknowledgedAt": null,
+            "closedAt": null
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 5.2,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-001",
+            "field": "motor_i",
+            "unit": "A",
+            "value": 5.2,
+            "quality": "有效",
+            "note": "持续策略不响应2秒尖峰，14秒检出，临界波动仍有6次切换。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 9,
+        "kind": "strategy",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "即时阈值会响应尖峰；持续条件增加3秒延迟；滞回将减少临界波动的状态切换。",
+        "predictionHistory": [
+          {
+            "text": "即时阈值会响应尖峰；持续条件增加3秒延迟；滞回将减少临界波动的状态切换。",
+            "at": "2026-10-27T01:47:16.775Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:47:19.022Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 14,
+            "type": "trigger"
+          },
+          {
+            "tick": 37,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 14,
+            "recoveredAt": 37,
+            "acknowledgedAt": 40,
+            "closedAt": 40
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 5.2,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-001",
+            "field": "motor_i",
+            "unit": "A",
+            "value": 5.2,
+            "quality": "有效",
+            "note": "滞回策略14秒触发37秒恢复，仅2次切换；恢复前保持事件状态。"
+          }
+        ],
+        "transferId": null
+      },
+      {
+        "id": 10,
+        "kind": "transfer",
+        "dataset": "pump-labelled-40s-v2.0",
+        "config": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-201",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-207",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-209",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "prediction": "新台账保留P-207，修复错绑和字段后应恢复电流读数及14秒告警。",
+        "predictionHistory": [
+          {
+            "text": "新台账保留P-207，修复错绑和字段后应恢复电流读数及14秒告警。",
+            "at": "2026-10-27T01:47:33.486Z"
+          }
+        ],
+        "startedAt": "2026-10-27T01:47:33.788Z",
+        "tick": 40,
+        "complete": true,
+        "samples": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "published": [
+          {
+            "tick": 1,
+            "motor_i": 5.2,
+            "tank_level": 60.1,
+            "outlet_temp": 35.05
+          },
+          {
+            "tick": 2,
+            "motor_i": 5.2,
+            "tank_level": 60.2,
+            "outlet_temp": 35.1
+          },
+          {
+            "tick": 3,
+            "motor_i": 5.2,
+            "tank_level": 60.3,
+            "outlet_temp": 35.15
+          },
+          {
+            "tick": 4,
+            "motor_i": 5.2,
+            "tank_level": 60.4,
+            "outlet_temp": 35.2
+          },
+          {
+            "tick": 5,
+            "motor_i": 10.6,
+            "tank_level": 60.5,
+            "outlet_temp": 35.25
+          },
+          {
+            "tick": 6,
+            "motor_i": 10.6,
+            "tank_level": 60.6,
+            "outlet_temp": 35.3
+          },
+          {
+            "tick": 7,
+            "motor_i": 5.2,
+            "tank_level": 60.7,
+            "outlet_temp": 35.35
+          },
+          {
+            "tick": 8,
+            "motor_i": 5.2,
+            "tank_level": 60.8,
+            "outlet_temp": 35.4
+          },
+          {
+            "tick": 9,
+            "motor_i": 5.2,
+            "tank_level": 60.9,
+            "outlet_temp": 35.45
+          },
+          {
+            "tick": 10,
+            "motor_i": 5.2,
+            "tank_level": 61,
+            "outlet_temp": 35.5
+          },
+          {
+            "tick": 11,
+            "motor_i": 10.6,
+            "tank_level": 61.1,
+            "outlet_temp": 35.55
+          },
+          {
+            "tick": 12,
+            "motor_i": 10.6,
+            "tank_level": 61.2,
+            "outlet_temp": 35.6
+          },
+          {
+            "tick": 13,
+            "motor_i": 10.6,
+            "tank_level": 61.3,
+            "outlet_temp": 35.65
+          },
+          {
+            "tick": 14,
+            "motor_i": 10.6,
+            "tank_level": 61.4,
+            "outlet_temp": 35.7
+          },
+          {
+            "tick": 15,
+            "motor_i": 10.6,
+            "tank_level": 61.5,
+            "outlet_temp": 35.75
+          },
+          {
+            "tick": 16,
+            "motor_i": 10.6,
+            "tank_level": 61.6,
+            "outlet_temp": 35.8
+          },
+          {
+            "tick": 17,
+            "motor_i": 10.6,
+            "tank_level": 61.7,
+            "outlet_temp": 35.85
+          },
+          {
+            "tick": 18,
+            "motor_i": 10.6,
+            "tank_level": 61.8,
+            "outlet_temp": 35.9
+          },
+          {
+            "tick": 19,
+            "motor_i": 7.8,
+            "tank_level": 61.9,
+            "outlet_temp": 35.95
+          },
+          {
+            "tick": 20,
+            "motor_i": 7.8,
+            "tank_level": 62,
+            "outlet_temp": 36
+          },
+          {
+            "tick": 21,
+            "motor_i": 7.8,
+            "tank_level": 62.1,
+            "outlet_temp": 36.05
+          },
+          {
+            "tick": 22,
+            "motor_i": 7.8,
+            "tank_level": 62.2,
+            "outlet_temp": 36.1
+          },
+          {
+            "tick": 23,
+            "motor_i": 8.2,
+            "tank_level": 62.3,
+            "outlet_temp": 36.15
+          },
+          {
+            "tick": 24,
+            "motor_i": 8.2,
+            "tank_level": 62.4,
+            "outlet_temp": 36.2
+          },
+          {
+            "tick": 25,
+            "motor_i": 8.2,
+            "tank_level": 62.5,
+            "outlet_temp": 36.25
+          },
+          {
+            "tick": 26,
+            "motor_i": 8.2,
+            "tank_level": 62.6,
+            "outlet_temp": 36.3
+          },
+          {
+            "tick": 27,
+            "motor_i": 7.8,
+            "tank_level": 62.7,
+            "outlet_temp": 36.35
+          },
+          {
+            "tick": 28,
+            "motor_i": 7.8,
+            "tank_level": 62.8,
+            "outlet_temp": 36.4
+          },
+          {
+            "tick": 29,
+            "motor_i": 7.8,
+            "tank_level": 62.9,
+            "outlet_temp": 36.45
+          },
+          {
+            "tick": 30,
+            "motor_i": 7.8,
+            "tank_level": 63,
+            "outlet_temp": 36.5
+          },
+          {
+            "tick": 31,
+            "motor_i": 8.2,
+            "tank_level": 63.1,
+            "outlet_temp": 36.55
+          },
+          {
+            "tick": 32,
+            "motor_i": 8.2,
+            "tank_level": 63.2,
+            "outlet_temp": 36.6
+          },
+          {
+            "tick": 33,
+            "motor_i": 8.2,
+            "tank_level": 63.3,
+            "outlet_temp": 36.65
+          },
+          {
+            "tick": 34,
+            "motor_i": 8.2,
+            "tank_level": 63.4,
+            "outlet_temp": 36.7
+          },
+          {
+            "tick": 35,
+            "motor_i": 5.2,
+            "tank_level": 63.5,
+            "outlet_temp": 36.75
+          },
+          {
+            "tick": 36,
+            "motor_i": 5.2,
+            "tank_level": 63.6,
+            "outlet_temp": 36.8
+          },
+          {
+            "tick": 37,
+            "motor_i": 5.2,
+            "tank_level": 63.7,
+            "outlet_temp": 36.85
+          },
+          {
+            "tick": 38,
+            "motor_i": 5.2,
+            "tank_level": 63.8,
+            "outlet_temp": 36.9
+          },
+          {
+            "tick": 39,
+            "motor_i": 5.2,
+            "tank_level": 63.9,
+            "outlet_temp": 36.95
+          },
+          {
+            "tick": 40,
+            "motor_i": 5.2,
+            "tank_level": 64,
+            "outlet_temp": 37
+          }
+        ],
+        "detector": {
+          "active": false,
+          "highSince": null,
+          "lowSince": null
+        },
+        "detections": [
+          {
+            "tick": 14,
+            "type": "trigger"
+          },
+          {
+            "tick": 37,
+            "type": "recover"
+          }
+        ],
+        "incidents": [
+          {
+            "id": 1,
+            "triggeredAt": 14,
+            "recoveredAt": 37,
+            "acknowledgedAt": null,
+            "closedAt": null
+          }
+        ],
+        "observations": [
+          {
+            "tick": 40,
+            "displayTick": 40,
+            "sourceValue": 5.2,
+            "model": "pump",
+            "asset": "pump",
+            "code": "P-207",
+            "field": "motor_i",
+            "unit": "A",
+            "value": 5.2,
+            "quality": "有效",
+            "note": "独立定位泵绑定到换热器、字段为液位两个错误；修复后5.2 A、14秒触发37秒恢复。"
+          }
+        ],
+        "transferId": 1
+      }
+    ],
+    "activeId": 10,
+    "phase": 4,
+    "kind": "transfer",
+    "predictions": {
+      "mapping": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+      "period": "相同输入下1秒发布40点，3秒发布较少并漏掉短尖峰，告警时刻相同。",
+      "strategy": "即时阈值会响应尖峰；持续条件增加3秒延迟；滞回将减少临界波动的状态切换。",
+      "transfer": "新台账保留P-207，修复错绑和字段后应恢复电流读数及14秒告警。"
+    },
+    "predictionHistory": {
+      "mapping": [
+        {
+          "text": "预测泵模型错绑储罐后显示液位百分比，修复后应显示电流A。",
+          "at": "2026-10-27T01:46:07.123Z"
+        }
+      ],
+      "period": [
+        {
+          "text": "相同输入下1秒发布40点，3秒发布较少并漏掉短尖峰，告警时刻相同。",
+          "at": "2026-10-27T01:47:00.125Z"
+        }
+      ],
+      "strategy": [
+        {
+          "text": "即时阈值会响应尖峰；持续条件增加3秒延迟；滞回将减少临界波动的状态切换。",
+          "at": "2026-10-27T01:47:16.775Z"
+        }
+      ],
+      "transfer": [
+        {
+          "text": "新台账保留P-207，修复错绑和字段后应恢复电流读数及14秒告警。",
+          "at": "2026-10-27T01:47:33.486Z"
+        }
+      ]
+    },
+    "conclusions": {
+      "mapping": "试验1—2只改泵绑定，模型读数由64%液位变为5.2 A电流。试验3—4只改字段，错误字段无有效告警，修复后14秒触发37秒恢复。",
+      "period": "试验5发布40点可见短尖峰，试验6发布14点漏显尖峰；源事件仍14秒触发37秒恢复，因此发布频率不改变源检测输入。",
+      "strategy": "试验7即时策略误触发1次且8次切换；试验8持续策略误触发0、延迟3秒、6次切换；试验9加入滞回后仅2次切换，37秒恢复。",
+      "transfer": "试验10保留P-207新台账，修复泵模型绑定换热器和错误液位字段后，正确显示电流并检出持续事件。",
+      "limits": "本报告是软件功能验收样例，不是真实学生试教。固定教学数据与事件标注不能用于生产诊断，单数据包不代表普遍性能；本地评分无身份认证。"
+    },
+    "logs": [
+      {
+        "at": "2026-10-27T01:46:06.916Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "",
+            "pump": "",
+            "exchanger": ""
+          },
+          "point": {
+            "field": "",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "",
+            "exchanger": ""
+          },
+          "point": {
+            "field": "",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:46:06.939Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "",
+            "exchanger": ""
+          },
+          "point": {
+            "field": "",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "tank",
+            "exchanger": ""
+          },
+          "point": {
+            "field": "",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:46:06.961Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "tank",
+            "exchanger": ""
+          },
+          "point": {
+            "field": "",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "tank",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:46:06.984Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "tank",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "tank",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:46:07.416Z",
+        "text": "试验#1开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:46:07.718Z",
+        "text": "试验#1完成。"
+      },
+      {
+        "at": "2026-10-27T01:46:30.373Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "tank",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:46:30.468Z",
+        "text": "试验#2开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:46:30.767Z",
+        "text": "试验#2完成。"
+      },
+      {
+        "at": "2026-10-27T01:46:31.338Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:46:31.437Z",
+        "text": "试验#3开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:46:31.736Z",
+        "text": "试验#3完成。"
+      },
+      {
+        "at": "2026-10-27T01:46:32.291Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:46:32.384Z",
+        "text": "试验#4开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:46:32.690Z",
+        "text": "试验#4完成。"
+      },
+      {
+        "at": "2026-10-27T01:47:00.408Z",
+        "text": "试验#5开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:47:00.712Z",
+        "text": "试验#5完成。"
+      },
+      {
+        "at": "2026-10-27T01:47:01.262Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:47:01.357Z",
+        "text": "试验#6开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:47:01.664Z",
+        "text": "试验#6完成。"
+      },
+      {
+        "at": "2026-10-27T01:47:16.999Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "threshold",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:47:17.105Z",
+        "text": "试验#7开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:47:17.405Z",
+        "text": "试验#7完成。"
+      },
+      {
+        "at": "2026-10-27T01:47:17.950Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "threshold",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "persistence",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:47:18.055Z",
+        "text": "试验#8开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:47:18.358Z",
+        "text": "试验#8完成。"
+      },
+      {
+        "at": "2026-10-27T01:47:18.914Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "persistence",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-001",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-001",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-001",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 3,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:47:19.022Z",
+        "text": "试验#9开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:47:19.327Z",
+        "text": "试验#9完成。"
+      },
+      {
+        "at": "2026-10-27T01:47:19.938Z",
+        "text": "试验#9事件1已确认。"
+      },
+      {
+        "at": "2026-10-27T01:47:20.238Z",
+        "text": "试验#9事件1复核关闭。"
+      },
+      {
+        "at": "2026-10-27T01:47:20.839Z",
+        "text": "领取迁移任务1，新资产台账及待排查配置已建立。"
+      },
+      {
+        "at": "2026-10-27T01:47:33.310Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-201",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-207",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-209",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "exchanger",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-201",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-207",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-209",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:47:33.350Z",
+        "text": "配置变更；历史试验保留，当前方案须另行回放验证。",
+        "before": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-201",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-207",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-209",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        },
+        "after": {
+          "assets": [
+            {
+              "id": "tank",
+              "code": "T-201",
+              "name": "储罐"
+            },
+            {
+              "id": "pump",
+              "code": "P-207",
+              "name": "离心泵"
+            },
+            {
+              "id": "exchanger",
+              "code": "HX-209",
+              "name": "换热器"
+            }
+          ],
+          "bindings": {
+            "tank": "tank",
+            "pump": "pump",
+            "exchanger": "exchanger"
+          },
+          "point": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 20
+          },
+          "period": 1,
+          "strategy": "hysteresis",
+          "rule": {
+            "high": 8,
+            "duration": 3,
+            "low": 7,
+            "recoveryDuration": 2
+          }
+        }
+      },
+      {
+        "at": "2026-10-27T01:47:33.788Z",
+        "text": "试验#10开始，输入窗口1—40秒，配置和预测已锁定。"
+      },
+      {
+        "at": "2026-10-27T01:47:34.086Z",
+        "text": "试验#10完成。"
+      },
+      {
+        "at": "2026-10-27T01:47:54.499Z",
+        "text": "实验报告已提交教师复核。"
+      },
+      {
+        "at": "2026-10-27T01:48:15.101Z",
+        "text": "已记录本地教师评价，非身份认证成绩。"
+      }
+    ],
+    "transferId": 1,
+    "submission": "56350:61744027:3540998663",
+    "review": {
+      "reviewer": "软件功能验收样例（非真实教师评价）",
+      "explanation": 18,
+      "limits": 8,
+      "feedback": "仅用于检查人工录分与版本失效功能，不作为学生成绩或教学效果证据。",
+      "trialIds": [
+        9
+      ],
+      "basis": "56350:61744027:3540998663",
+      "at": "2026-10-27T01:48:15.101Z"
+    },
+    "sceneSelections": [
+      "pump"
+    ]
+  }
+}
