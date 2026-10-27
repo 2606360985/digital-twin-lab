@@ -23,3 +23,11 @@ v2存储键为twin-workshop:monitoring-cell:v2。v1键不删除，旧记录只�
 ## 后续完整课程
 
 数据质量治理与断网补传、可编辑状态机、知识库构建/RAG、时序异常检测应分别作为后续实验。保持本例核心知识和90分钟任务边界，先完成五人试教再扩展。申报书原件未被本次开发修改。
+
+## v2.1 会话与提交工作流
+
+实验核心通过defineLabSession创建不同store ID和持久化键。正式useLab保持原v2键，useTutorialLab使用独立教程键。SessionHost向子树提供LabSession，场景、配置与图表通过useLabSession取当前实例，不能通过交换正式saved临时借用教程状态。
+
+操作引导状态在guide.ts独立保存步骤、已完成检查点和显式仿真控制动作，刷新后不自动接续时钟。guideSteps声明高亮目标与说明；TutorialGuide依据目标DOM展开、定位并测量高亮区域，滚动和视口变化时更新。课程内容与学习提示由curriculum.ts、scenario.ts提供；目录进度由实验有效证据推导。
+
+portal.ts保存同一浏览器的提交版本和批阅历史。snapshotJson是提交时序列化副本；教师展示解析出的独立副本，不把当前学生store作为批阅对象。评分依据basis关联特定版本，仅与当前已提交且basis匹配的正式实例同步。旧版已提交报告与有效review可作为v2历史来源迁入。角色检查约束原型操作，不代替服务端身份认证。

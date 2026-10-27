@@ -2,11 +2,11 @@
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { useLab } from '../store'
+import { useLabSession } from '../session'
 import type { Equipment } from '../domain'
 import { RotateCcw, Move, MousePointer2, Expand } from 'lucide-vue-next'
 const props = defineProps<{ hero?: boolean }>()
-const lab = useLab(); const host = ref<HTMLDivElement>(); const error = ref('')
+const lab = useLabSession(); const host = ref<HTMLDivElement>(); const error = ref('')
 let renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera, controls: OrbitControls, observer: ResizeObserver, frame = 0
 const groups = new Map<Equipment, THREE.Group>(), rings = new Map<Equipment, THREE.Mesh>(), labels = new Map<Equipment, { canvas: HTMLCanvasElement; texture: THREE.CanvasTexture; sprite: THREE.Sprite }>()
 const positions = { tank: -4.4, pump: 0, exchanger: 4.4 }
