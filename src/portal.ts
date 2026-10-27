@@ -1,7 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { clone, achievements, coreCorrect, signature } from './domain'
-import { parseSnapshot, reportBasis, type LabSession, type Review, type SavedState } from './store'
+import { parseSnapshot, reportBasis, isCurrentTrial, type LabSession, type Review, type SavedState } from './store'
 export const PORTAL_KEY = 'twin-workshop:teacher-submissions:v1'
 export const ROLE_KEY = 'twin-workshop:role-demo:v1'
 export interface SubmissionSnapshot { id: number; version: number; basis: string; submittedAt: string; origin: '本地提交' | 'v2历史迁入'; snapshotJson: string; reviews: Review[] }
@@ -31,7 +31,7 @@ export const usePortal = defineStore('teacher-portal', () => {
   function capture(s:SavedState, origin:SubmissionSnapshot['origin']='本地提交') {
     const basis=reportBasis(s), existing=submissions.value.find(r=>r.basis===basis)
     if(existing) return existing
-    if(s.submission!==basis || achievements(s.trials,s.config,s.transferId).reduce((n,r)=>n+r.earned,0)!==70 || !s.trials.some(t=>t.complete&&coreCorrect(t.config)&&signature(t.config)===signature(s.config)&&t.observations.length) || !Object.values(s.conclusions).every(v=>v.trim())) return null
+    if(s.submission!==basis || achievements(s.trials,s.config,s.transferId).reduce((n,r)=>n+r.earned,0)!==70 || !s.trials.some(t=>isCurrentTrial(t,s)) || !Object.values(s.conclusions).every(v=>v.trim())) return null
     const oldReview = s.review?.basis===basis && validReview(s.review,s) ? [clone(s.review)] : []
     const entry:SubmissionSnapshot={id:(submissions.value.at(-1)?.id??0)+1,version:submissions.value.length+1,basis,submittedAt:new Date().toISOString(),origin,snapshotJson:JSON.stringify(clone(s)),reviews:oldReview}
     submissions.value.push(entry); return entry

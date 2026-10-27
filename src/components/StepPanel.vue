@@ -5,12 +5,13 @@ import { equipmentIds, strategyNames, type Strategy } from '../domain'
 import { knowledge, phases } from '../scenario'
 import LearningHints from './LearningHints.vue'
 defineProps<{ tutorial?: boolean }>()
-const lab = useLabSession(), prediction = ref(''), observation = ref(''), hint = ref(0)
+const lab = useLabSession(), prediction = ref(''), hint = ref(0)
 watch(() => lab.saved.kind, k => { prediction.value = lab.saved.predictions[k]; hint.value = 0 }, { immediate: true })
 const config = computed(() => lab.saved.config), phase = computed(() => phases[lab.saved.phase]!), chain = computed(() => lab.modelInfo(lab.sceneSelected))
 const labels = { tank: '储罐模型', pump: '泵模型', exchanger: '换热器模型' }
 function savePrediction() { lab.editPrediction(prediction.value); lab.lastMessage = '预测已保存。试验开始后将锁定快照；修改预测会保留历史。' }
-function record() { if (lab.observe(observation.value)) observation.value = '' }
+const savedObservations=computed(()=>lab.active?.observations.filter(o=>o.model===lab.sceneSelected)??[])
+function record() { if (lab.observe(lab.observationDraft)) lab.observationDraft = '' }
 </script>
 <template>
   <aside class="core-inspector"><LearningHints :phase="lab.saved.phase" />
@@ -20,13 +21,23 @@ function record() { if (lab.observe(observation.value)) observation.value = '' }
     <div class="core-card" data-guide="configuration"><h3>实验配置</h3><p class="core-small">可自由试错。修改后旧试验保留，新配置需另行验证。</p>
       <details data-guide-expand :open="lab.saved.phase <= 1 || lab.saved.phase === 4"><summary>资产台账与模型绑定</summary>
         <label v-for="a in config.assets" :key="a.id" class="field"><span>{{ a.name }}编码</span><input v-model.trim="a.code" :aria-label="a.name+'编码'" maxlength="24" @change="lab.changed()" /></label>
-        <label v-for="id in equipmentIds" :key="id" class="field"><span>{{ labels[id] }}关联资产</span><select v-model="config.bindings[id]" :aria-label="labels[id]+'关联资产'" @change="lab.changed()"><option value="">未绑定</option><option v-for="a in config.assets" :key="a.id" :value="a.id">{{ a.code }} · {{ a.name }}</option></select></label>
+        <label v-for="id in equipmentIds" :key="id" class="field" :data-guide="id==='pump'?'pump-binding':undefined"><span>{{ labels[id] }}关联资产</span><select v-model="config.bindings[id]" :aria-label="labels[id]+'关联资产'" @change="lab.changed()"><option value="">未绑定</option><option v-for="a in config.assets" :key="a.id" :value="a.id">{{ a.code }} · {{ a.name }}</option></select></label>
       </details>
       <details data-guide-expand :open="lab.saved.phase <= 1 || lab.saved.phase === 4"><summary>泵测点字典</summary><label class="field"><span>数据字段</span><select v-model="config.point.field" aria-label="泵数据字段" @change="lab.changed()"><option value="">未配置</option><option value="motor_i">motor_i</option><option value="tank_level">tank_level</option><option value="outlet_temp">outlet_temp</option></select></label><div class="core-two"><label class="field"><span>字典单位</span><select v-model="config.point.unit" aria-label="字典单位" @change="lab.changed()"><option>A</option><option>mA</option><option>%</option><option>℃</option></select></label><label class="field"><span>数据类型</span><select v-model="config.point.type" aria-label="数据类型" @change="lab.changed()"><option value="number">number</option><option value="string">string</option></select></label></div><div class="core-two"><label class="field"><span>量程下限</span><input type="number" v-model.number="config.point.min" aria-label="量程下限" @change="lab.changed()" /></label><label class="field"><span>量程上限</span><input type="number" v-model.number="config.point.max" aria-label="量程上限" @change="lab.changed()" /></label></div></details>
       <details :open="lab.saved.phase === 2"><summary>发布周期</summary><label class="field"><span>源样本始终每秒一条</span><select v-model.number="config.period" aria-label="发布周期" @change="lab.changed()"><option :value="1">1秒</option><option :value="3">3秒</option></select></label></details>
       <details :open="lab.saved.phase === 3"><summary>告警策略与参数</summary><label class="field"><span>策略</span><select v-model="config.strategy" aria-label="告警策略" @change="lab.changed()"><option v-for="(name,id) in strategyNames" :key="id" :value="id as Strategy">{{ name }}</option></select></label><div class="core-two"><label class="field"><span>触发阈值 / A</span><input v-model.number="config.rule.high" aria-label="触发阈值" type="number" step="0.1" @change="lab.changed()" /></label><label class="field"><span>越限持续 / 秒</span><input v-model.number="config.rule.duration" aria-label="越限持续秒" type="number" @change="lab.changed()" /></label><label class="field"><span>滞回恢复阈值 / A</span><input v-model.number="config.rule.low" aria-label="滞回恢复阈值" type="number" step="0.1" @change="lab.changed()" /></label><label class="field"><span>恢复持续 / 秒</span><input v-model.number="config.rule.recoveryDuration" aria-label="恢复持续秒" type="number" @change="lab.changed()" /></label></div><p class="core-small">即时阈值不等待持续时间，恢复阈值等于触发阈值；持续策略仅增加时间条件；滞回策略再使用较低恢复阈值。严格大于/小于，事件时间差计时。</p></details>
     </div>
-    <div class="core-card" data-guide="observation"><h3>关联链检查与记录</h3><p class="core-small">点选三维模型，再核对源单位与字典单位。预览使用当前配置；观察证据按锁定试验的源样本记录。</p><dl class="chain"><dt>模型</dt><dd>{{ labels[lab.sceneSelected] }}</dd><dt>实际资产</dt><dd>{{ chain.asset ? chain.asset.code+' · '+chain.asset.name : '未绑定 · 无数据' }}</dd><dt>源字段 / 单位</dt><dd>{{ chain.reading ? chain.reading.field+' / '+chain.reading.unit : '—' }}</dd><dt>字典单位</dt><dd>{{ chain.asset?.id === 'pump' ? config.point.unit : chain.reading?.unit ?? '—' }}</dd><dt>发布读数 / 时间</dt><dd>{{ chain.reading ? chain.reading.value+' '+chain.reading.unit+' / '+chain.reading.tick+'s' : '等待发布' }}</dd><dt>数据质量</dt><dd :class="{ 'core-warning': chain.reading && !chain.reading.valid }">{{ chain.reading?.quality ?? '无数据' }}</dd></dl><label class="field"><span>观察与解释（记录时自动附带源样本时间）</span><textarea v-model="observation" rows="3" maxlength="20000" placeholder="描述实际看到的关联、错误后果或与预测的差异。" /></label><button class="btn" @click="record">保存关联链与观察</button></div>
+    <div class="core-card" data-guide="observation"><h3>关联链检查与记录</h3>
+      <p class="core-small">这里的身份和读数由三维选择、绑定与本轮结果自动带入，不用手工填写。先核对，再在下方写观察并保存。</p>
+      <ol v-if="tutorial" class="observation-howto"><li>核对下表：实际资产、源字段、单位、读数与时间。</li><li>在下方“观察与解释”输入框记录实际现象及与预测的差异。</li><li>点击“保存关联链与观察”。看到已保存的记录编号后，再点引导的“下一步”。</li></ol>
+      <dl class="chain" data-guide="observation-chain"><dt>模型</dt><dd>{{ labels[lab.sceneSelected] }}</dd><dt>实际资产</dt><dd>{{ chain.asset ? chain.asset.code+' · '+chain.asset.name : '未绑定 · 无数据' }}</dd><dt>源字段 / 单位</dt><dd>{{ chain.reading ? chain.reading.field+' / '+chain.reading.unit : '—' }}</dd><dt>字典单位</dt><dd>{{ chain.asset?.id === 'pump' ? config.point.unit : chain.reading?.unit ?? '—' }}</dd><dt>发布读数 / 时间</dt><dd>{{ chain.reading ? chain.reading.value+' '+chain.reading.unit+' / '+chain.reading.tick+'s' : '等待发布' }}</dd><dt>数据质量</dt><dd :class="{ 'core-warning': chain.reading && !chain.reading.valid }">{{ chain.reading?.quality ?? '无数据' }}</dd></dl>
+      <div data-guide="observation-entry"><label class="field" data-guide="observation-note"><span>观察与解释（记录时自动附带源样本时间）</span><textarea v-model="lab.observationDraft" data-guide-focus rows="4" maxlength="20000" placeholder="本轮模型实际关联谁？字段和单位是什么？记录读数与时间，再说明与预测相比发生了什么。" /></label>
+        <p class="core-small observation-input-help">只需填写观察文字；模型、资产、字段、读数及时间会自动随记录保存。</p>
+        <button class="btn" data-guide="observation-save" @click="record">保存关联链与观察</button>
+        <p v-if="savedObservations.length" class="observation-saved" role="status">✓ 已保存到仿真记录 #{{ lab.active!.id }} · 本轮该模型共{{ savedObservations.length }}条观察。{{ tutorial?'请核对引导清单，满足后点击“下一步”。':'可在报告中查看。' }}</p>
+        <p v-else class="observation-pending" role="status">{{ lab.observationIssue || '内容已填写，点击上方按钮保存后才形成实验证据。' }}</p>
+      </div>
+    </div>
     <details class="core-card"><summary>逐级提示与原理资料</summary><p>本地自编资料与提示，未接入大模型。</p><button class="btn" @click="hint = Math.min(3,hint+1)">展开下一级提示（{{ hint }}/3）</button><p v-if="hint >= 1">先核对模型身份、实际资产编码、源字段单位和事件时间。每次对照只改变一个研究变量。</p><p v-if="hint >= 2">泵电流应来自motor_i，源单位A；模型绑定指向资产，不依赖外形或编码文字。规则计算每个源样本。</p><p v-if="hint >= 3">可先用触发8 A、持续3秒、恢复7 A、恢复2秒完成基准对照，再探索其他参数。初始高于阈值的样本不算已经持续了1秒。</p><article v-for="k in knowledge" :key="k.title"><h4>{{ k.title }}</h4><p>{{ k.content }}</p></article></details>
   </aside>
 </template>

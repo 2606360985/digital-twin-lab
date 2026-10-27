@@ -1,14 +1,16 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import { defaultSceneLayout,defaultSceneNavigation,editedScene,equipmentNode,nodeById,nodePath,validateSceneLayout,type SceneLayout } from './sceneGraph'
 import { DATASET, WINDOW, achievements, advanceTrial, assetReading, clone, coreCorrect, equipmentIds, initialConfig, metrics, modelReading, newTrial, pointError, ruleError, signature, type Equipment, type LabConfig, type PredictionEdit, type Trial, type TrialKind } from './domain'
 export const STORAGE_KEY = 'twin-workshop:monitoring-cell:v2'
 export const LEGACY_KEY = 'twin-workshop:monitoring-cell:v1'
 export interface Review { reviewer: string; explanation: number; limits: number; feedback: string; trialIds: number[]; basis: string; at: string }
 export interface SavedState {
+  sceneLayout?: SceneLayout;
   version: 2; scenarioId: 'pump-core'; config: LabConfig; trials: Trial[]; activeId: number | null; phase: number; kind: TrialKind;
   predictions: Record<TrialKind, string>; predictionHistory: Record<TrialKind, PredictionEdit[]>;
   conclusions: { mapping: string; period: string; strategy: string; transfer: string; limits: string };
-  logs: { at: string; text: string; before?: LabConfig; after?: LabConfig }[];
+  logs: { at: string; text: string; before?: LabConfig; after?: LabConfig; sceneBefore?:SceneLayout; sceneAfter?:SceneLayout }[];
   transferId: number | null; submission: string; review: Review | null; sceneSelections: Equipment[]
 }
 export function fresh(): SavedState { return { version: 2, scenarioId: 'pump-core', config: initialConfig(), trials: [], activeId: null, phase: 0, kind: 'mapping', predictions: { mapping: '', period: '', strategy: '', transfer: '' }, predictionHistory: { mapping: [], period: [], strategy: [], transfer: [] }, conclusions: { mapping: '', period: '', strategy: '', transfer: '', limits: '' }, logs: [], transferId: null, submission: '', review: null, sceneSelections: [] } }
@@ -35,6 +37,7 @@ export function parseSnapshot(text: string): SavedState {
     const s = JSON.parse(text) as SavedState
     if (!s || s.version !== 2 || s.scenarioId !== 'pump-core') throw 0
     assertConfig(s.config)
+    if(s.sceneLayout!==undefined)s.sceneLayout=validateSceneLayout(s.sceneLayout)
     if (!Array.isArray(s.trials) || s.trials.length > 1000 || !Number.isInteger(s.phase) || s.phase < 0 || s.phase > 4 || !kinds.includes(s.kind) || !(s.activeId === null || Number.isInteger(s.activeId))) throw 0
     if (!(s.transferId === null || Number.isInteger(s.transferId)) || !s.predictions || !s.predictionHistory || !s.conclusions || !kinds.every(k => isText(s.predictions[k]) && isText(s.conclusions[k]) && Array.isArray(s.predictionHistory[k]) && s.predictionHistory[k].every(e => isText(e.text) && isText(e.at))) || !isText(s.conclusions.limits)) throw 0
     if (!Array.isArray(s.logs) || !s.logs.every(e => isText(e.at) && isText(e.text)) || !Array.isArray(s.sceneSelections) || !s.sceneSelections.every(isId) || !isText(s.submission)) throw 0
@@ -55,11 +58,13 @@ export function parseSnapshot(text: string): SavedState {
       })
       if (!Array.isArray(t.incidents) || t.incidents.length !== rebuilt.incidents.length) throw 0
       rebuilt.incidents.forEach((e, i) => { const old = t.incidents[i]!; if (old.id !== e.id || old.triggeredAt !== e.triggeredAt || old.recoveredAt !== e.recoveredAt || !nullableTime(old.acknowledgedAt) || !nullableTime(old.closedAt)) throw 0; if (old.acknowledgedAt !== null && (old.acknowledgedAt < e.triggeredAt || old.acknowledgedAt > t.tick)) throw 0; if (old.closedAt !== null && (old.acknowledgedAt === null || e.recoveredAt === null || old.closedAt < Math.max(old.acknowledgedAt, e.recoveredAt) || old.closedAt > t.tick)) throw 0; e.acknowledgedAt = old.acknowledgedAt; e.closedAt = old.closedAt })
+      if(t.sceneRevision!==undefined){if(!Number.isInteger(t.sceneRevision)||t.sceneRevision<0||t.sceneRevision>(s.sceneLayout?.revision??0))throw 0;rebuilt.sceneRevision=t.sceneRevision}
       return rebuilt
     })
     if (s.activeId !== null && !ids.has(s.activeId)) throw 0
     if (s.review && (!isText(s.review.reviewer) || !isText(s.review.feedback) || !isText(s.review.basis) || !isText(s.review.at) || !Number.isInteger(s.review.explanation) || s.review.explanation < 0 || s.review.explanation > 20 || !Number.isInteger(s.review.limits) || s.review.limits < 0 || s.review.limits > 10 || !Array.isArray(s.review.trialIds) || !s.review.trialIds.every(id => ids.has(id)))) throw 0
     const clean = Object.fromEntries(Object.keys(fresh()).map(k => [k, s[k as keyof SavedState]])) as unknown as SavedState
+    if(s.sceneLayout!==undefined)clean.sceneLayout=s.sceneLayout
     return clone(clean)
   } catch { throw new Error('备份结构、版本或事件记录不符合本实验，当前进度未改变。') }
 }
@@ -72,13 +77,16 @@ export function defineLabSession(id: string, storageKey: string, readLegacy = fa
   const saved = ref(fresh()), persistenceError = ref(''), lastMessage = ref('')
   const legacy = ref<ReturnType<typeof parseLegacy> | null>(null)
   try { const text = localStorage.getItem(storageKey); if (text) saved.value = parseSnapshot(text); const old = readLegacy ? localStorage.getItem(LEGACY_KEY) : null; if (old) legacy.value = parseLegacy(old) } catch { persistenceError.value = '本地记录读取失败。原始存储未被清除，请导入备份或导出诊断。' }
+  const sceneLayout = computed(()=>saved.value.sceneLayout??defaultSceneLayout())
+  const sceneView = ref(defaultSceneNavigation())
+  const observationDraft = ref('')
   const running = ref(false), sceneReady = ref(false), selected = ref<Equipment>('pump'), sceneSelected = ref<Equipment>('pump'), page = ref<'overview' | 'lab' | 'report'>('overview')
   let timer: ReturnType<typeof setInterval> | undefined
   let previousConfig = clone(saved.value.config)
   const active = computed(() => saved.value.trials.find(t => t.id === saved.value.activeId) ?? null)
   const latest = computed(() => active.value?.published.at(-1))
-  const currentMatches = computed(() => !!active.value && signature(active.value.config) === signature(saved.value.config))
-  const currentAccepted = computed(() => saved.value.trials.some(t => t.complete && signature(t.config) === signature(saved.value.config) && coreCorrect(t.config) && t.observations.length > 0))
+  const currentMatches = computed(() => !!active.value && signature(active.value.config) === signature(saved.value.config) && (active.value.sceneRevision??0)===sceneLayout.value.revision)
+  const currentAccepted = computed(() => saved.value.trials.some(t => isCurrentTrial(t,saved.value)))
   const results = computed(() => achievements(saved.value.trials, saved.value.config, saved.value.transferId))
   const autoScore = computed(() => results.value.reduce((n, r) => n + r.earned, 0))
   const basis = computed(() => reportBasis(saved.value))
@@ -90,7 +98,7 @@ export function defineLabSession(id: string, storageKey: string, readLegacy = fa
   function log(text: string, before?: LabConfig, after?: LabConfig) { saved.value.logs.push({ at: new Date().toISOString(), text, ...(before ? { before: clone(before) } : {}), ...(after ? { after: clone(after) } : {}) }) }
   function pause() { running.value = false; if (timer) clearInterval(timer); timer = undefined }
   function changed() { pause(); log('配置变更；历史试验保留，当前方案须另行回放验证。', previousConfig, saved.value.config); previousConfig = clone(saved.value.config); const bound = saved.value.config.bindings[sceneSelected.value]; if (bound) selected.value = bound; lastMessage.value = '配置已改变。旧试验仍可比较，不能作为当前配置的验收。' }
-  function setPhase(index: number) { pause(); saved.value.phase = index; saved.value.kind = index <= 1 ? 'mapping' : index === 2 ? 'period' : index === 3 ? 'strategy' : 'transfer' }
+  function setPhase(index: number) { pause(); locateExperiment(); saved.value.phase = index; saved.value.kind = index <= 1 ? 'mapping' : index === 2 ? 'period' : index === 3 ? 'strategy' : 'transfer' }
   function editPrediction(text: string) { const k = saved.value.kind; saved.value.predictions[k] = text; saved.value.predictionHistory[k].push({ text, at: new Date().toISOString() }) }
   function choose(id: Equipment, source: 'tree' | 'scene') {
     if (source === 'scene') { sceneSelected.value = id; if (!saved.value.sceneSelections.includes(id)) saved.value.sceneSelections.push(id); const bound = saved.value.config.bindings[id]; if (bound) selected.value = bound }
@@ -104,6 +112,7 @@ export function defineLabSession(id: string, storageKey: string, readLegacy = fa
     if (ruleError(s.config)) { lastMessage.value = ruleError(s.config); return false }
     if (s.kind === 'transfer' && s.transferId === null) { lastMessage.value = '请先领取独立迁移任务。'; return false }
     const t = newTrial((s.trials.at(-1)?.id ?? 0) + 1, s.kind, s.config, prediction, s.predictionHistory[s.kind], s.kind === 'transfer' ? s.transferId : null)
+    t.sceneRevision=sceneLayout.value.revision
     s.trials.push(t); s.activeId = t.id; log(`仿真记录#${t.id}开始，输入窗口1—40秒，配置和预测已锁定。`); lastMessage.value = '已开始新一轮仿真。配置和预测已锁定，可暂停、单步或快速完成。'; play(); return true
   }
   function step() { const t = active.value; if (!t || t.complete || !currentMatches.value) { pause(); return }; advanceTrial(t); if (t.complete) { pause(); log(`仿真记录#${t.id}完成。`); lastMessage.value = '回放完成，请点选三维泵，记录关联链和观察。' } }
@@ -119,11 +128,17 @@ export function defineLabSession(id: string, storageKey: string, readLegacy = fa
   function reading(id: Equipment) { return assetReading(saved.value.config, id, latest.value) }
   function modelInfo(id: Equipment) { return modelReading(saved.value.config, id, latest.value) }
   function modelActive(id: Equipment) { return currentMatches.value && saved.value.config.bindings[id] === 'pump' && !pointError(saved.value.config) && !!active.value?.detector.active }
+  function observationProblem(note:string) {
+    if(!active.value?.tick||!currentMatches.value)return '当前没有与配置一致的仿真结果。请开始仿真并运行后再记录。'
+    if(!sceneReady.value||!saved.value.sceneSelections.includes(sceneSelected.value))return '还未实际点选三维设备。请回到三维窗口，点击要记录的设备实体。'
+    if(!note.trim())return '请在下方“观察与解释”输入框填写实际现象，再点击“保存关联链与观察”。'
+    return ''
+  }
+  const observationIssue=computed(()=>observationProblem(observationDraft.value))
   function observe(note: string) {
-    const t = active.value
-    if (!t || !t.tick || !currentMatches.value) { lastMessage.value = '请先运行与当前配置一致的试验。'; return false }
-    if (!sceneReady.value || !saved.value.sceneSelections.includes(sceneSelected.value)) { lastMessage.value = '请实际点击三维模型后记录关联链。'; return false }
-    if (!note.trim()) { lastMessage.value = '请填写观察内容。文字仅检查完整性，由教师判断解释是否有据。'; return false }
+    const issue=observationProblem(note)
+    if(issue){lastMessage.value=issue;return false}
+    const t = active.value!
     const info = modelReading(t.config, sceneSelected.value, t.published.at(-1))
     const source = modelReading(t.config, sceneSelected.value, t.samples[t.tick - 1])
     t.observations.push({ tick: t.tick, displayTick: t.published.at(-1)?.tick ?? null, sourceValue: source.reading?.value ?? null, model: sceneSelected.value, asset: info.asset?.id ?? '', code: info.asset?.code ?? '', field: info.reading?.field ?? '', unit: info.reading?.unit ?? '', value: info.reading?.value ?? null, quality: info.reading?.quality ?? '无数据', note: note.trim() }); lastMessage.value = `已记录仿真记录#${t.id}的模型、资产、字段、源单位、源/发布读数和观察。`; return true
@@ -139,14 +154,29 @@ export function defineLabSession(id: string, storageKey: string, readLegacy = fa
     if (!submitted.value || !input.reviewer.trim() || !input.feedback.trim() || !Number.isInteger(input.explanation) || input.explanation < 0 || input.explanation > 20 || !Number.isInteger(input.limits) || input.limits < 0 || input.limits > 10 || !input.trialIds.length || !input.trialIds.every(id => saved.value.trials.some(t => t.id === id && t.complete))) { lastMessage.value = '先提交有效报告。教师复核须包含姓名、证据试验、反馈及合法整数分值。'; return false }
     saved.value.review = { ...clone(input), basis: basis.value, at: new Date().toISOString() }; log('已记录本地教师评价，非身份认证成绩。'); return true
   }
-  function restore(text: string) { const s = parseSnapshot(text); pause(); saved.value = s; previousConfig = clone(s.config); lastMessage.value = 'v2备份已恢复，回放暂停；计算结果已按固定输入重新核算。' }
+  function restore(text: string) { const s = parseSnapshot(text); pause(); saved.value = s; previousConfig = clone(s.config); sceneView.value=defaultSceneNavigation(); lastMessage.value = 'v2备份已恢复，回放暂停；计算结果已按固定输入重新核算。' }
   function importArchive(text: string) { let version: unknown; try { version = JSON.parse(text)?.version } catch { throw new Error('文件不是有效JSON。') }; if (version === 1) { legacy.value = parseLegacy(text); lastMessage.value = 'v1备份已打开为只读，未导入配置或成绩。' } else restore(text) }
   function exportJson() { return JSON.stringify(saved.value, null, 2) }
-  return { basis, controlHistory, control, saved, legacy, running, sceneReady, selected, sceneSelected, page, persistenceError, lastMessage, active, latest, currentMatches, currentAccepted, results, autoScore, submitted, reviewValid, teacherScore, totalScore, pause, play, step, finish, changed, setPhase, editPrediction, choose, startTrial, selectTrial, repeatTrial, reading, modelInfo, modelActive, observe, acknowledge, closeIncident, assignTransfer, submit, review, restore, importArchive, exportJson }
+  function selectSceneNode(id:string,source:'tree'|'canvas'='tree'){
+    const node=nodeById(sceneLayout.value,id);if(!node)return
+    sceneView.value.selectedId=id
+    if(node.assetId){sceneSelected.value=node.assetId;if(source==='canvas')choose(node.assetId,'scene');else selected.value=saved.value.config.bindings[node.assetId]||node.assetId}
+  }
+  function enterSceneNode(id:string){const node=nodeById(sceneLayout.value,id);if(!node)return;revealSceneNode(id);sceneView.value.levelId=node.kind==='equipment'?node.parentId!:id;sceneView.value.focusId=id;sceneView.value.focusNonce++;selectSceneNode(id);if(!sceneView.value.visited.includes(sceneView.value.levelId))sceneView.value.visited.push(sceneView.value.levelId)}
+  function revealSceneNode(id:string){const path=nodePath(sceneLayout.value,id).map(n=>n.id);sceneView.value.hidden=sceneView.value.hidden.filter(x=>!path.includes(x));sceneView.value.isolatedId=null}
+  function locateEquipment(id:Equipment){const node=equipmentNode(sceneLayout.value,id);enterSceneNode(node.id)}
+  function locateExperiment(){const node=equipmentNode(sceneLayout.value,'pump');enterSceneNode(node.parentId!);selectSceneNode(node.id)}
+  function goSceneUp(){const node=nodeById(sceneLayout.value,sceneView.value.levelId);if(node?.parentId)enterSceneNode(node.parentId)}
+  function toggleSceneNode(id:string){if(id==='factory')return;const hidden=sceneView.value.hidden;sceneView.value.hidden=hidden.includes(id)?hidden.filter(x=>x!==id):[...hidden,id]}
+  function isolateSceneNode(id:string){revealSceneNode(id);sceneView.value.isolatedId=id;enterSceneNode(id);sceneView.value.isolatedId=id}
+  function restoreSceneVisibility(){sceneView.value.hidden=[];sceneView.value.isolatedId=null}
+  function editSceneNode(id:string,name:string,parentId:string|null){try{const before=sceneLayout.value,next=editedScene(before,id,name,parentId);if(next===before)return true;pause();saved.value.sceneLayout=next;saved.value.sceneSelections=[];saved.value.logs.push({at:new Date().toISOString(),text:'场景结构调整，当前方案需重新仿真与观察。',sceneBefore:JSON.parse(JSON.stringify(before)),sceneAfter:JSON.parse(JSON.stringify(next))});enterSceneNode(id);lastMessage.value='场景结构已更新，设备身份和测点绑定保持。请开始新一轮仿真并记录观察。';return true}catch(error){lastMessage.value=(error as Error).message;return false}}
+  return { observationDraft,observationIssue,sceneLayout,sceneView,selectSceneNode,enterSceneNode,locateEquipment,locateExperiment,goSceneUp,revealSceneNode,toggleSceneNode,isolateSceneNode,restoreSceneVisibility,editSceneNode,basis, controlHistory, control, saved, legacy, running, sceneReady, selected, sceneSelected, page, persistenceError, lastMessage, active, latest, currentMatches, currentAccepted, results, autoScore, submitted, reviewValid, teacherScore, totalScore, pause, play, step, finish, changed, setPhase, editPrediction, choose, startTrial, selectTrial, repeatTrial, reading, modelInfo, modelActive, observe, acknowledge, closeIncident, assignTransfer, submit, review, restore, importArchive, exportJson }
 }) }
 
 
 export const useLab = defineLabSession('lab', STORAGE_KEY, true)
 export const useTutorialLab = defineLabSession('tutorial-lab', TUTORIAL_KEY)
 export type LabSession = ReturnType<typeof useLab>
-export function reportBasis(s: SavedState): string { return fingerprint(JSON.stringify({config:s.config,trials:s.trials,conclusions:s.conclusions,transferId:s.transferId})) }
+export function reportBasis(s: SavedState): string { const base={config:s.config,trials:s.trials,conclusions:s.conclusions,transferId:s.transferId}; return fingerprint(JSON.stringify(s.sceneLayout?.revision?{...base,sceneLayout:s.sceneLayout}:base)) }
+export function isCurrentTrial(t:Trial,s:SavedState):boolean { return t.complete&&signature(t.config)===signature(s.config)&&coreCorrect(t.config)&&t.observations.length>0&&(t.sceneRevision??0)===(s.sceneLayout?.revision??0) }

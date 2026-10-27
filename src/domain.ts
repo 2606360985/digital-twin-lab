@@ -11,7 +11,7 @@ export interface Incident { id: number; triggeredAt: number; recoveredAt: number
 export interface Reading { value: number; unit: string; label: string; field: string; tick: number; valid: boolean; quality: string }
 export interface Observation { tick: number; displayTick?: number | null; sourceValue?: number | null; model: Equipment; asset: Equipment | ''; code: string; field: string; unit: string; value: number | null; quality: string; note: string }
 export interface PredictionEdit { text: string; at: string }
-export interface Trial { id: number; kind: TrialKind; dataset: string; config: LabConfig; prediction: string; predictionHistory: PredictionEdit[]; startedAt: string; tick: number; complete: boolean; samples: Sample[]; published: Sample[]; detector: Detector; detections: Detection[]; incidents: Incident[]; observations: Observation[]; transferId: number | null }
+export interface Trial { sceneRevision?: number; id: number; kind: TrialKind; dataset: string; config: LabConfig; prediction: string; predictionHistory: PredictionEdit[]; startedAt: string; tick: number; complete: boolean; samples: Sample[]; published: Sample[]; detector: Detector; detections: Detection[]; incidents: Incident[]; observations: Observation[]; transferId: number | null }
 export const equipmentIds: Equipment[] = ['tank', 'pump', 'exchanger']
 export const DATASET = 'pump-labelled-40s-v2.0'
 export const WINDOW = 40

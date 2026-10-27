@@ -31,3 +31,11 @@ v2存储键为twin-workshop:monitoring-cell:v2。v1键不删除，旧记录只�
 操作引导状态在guide.ts独立保存步骤、已完成检查点和显式仿真控制动作，刷新后不自动接续时钟。guideSteps声明高亮目标与说明；TutorialGuide依据目标DOM展开、定位并测量高亮区域，滚动和视口变化时更新。课程内容与学习提示由curriculum.ts、scenario.ts提供；目录进度由实验有效证据推导。
 
 portal.ts保存同一浏览器的提交版本和批阅历史。snapshotJson是提交时序列化副本；教师展示解析出的独立副本，不把当前学生store作为批阅对象。评分依据basis关联特定版本，仅与当前已提交且basis匹配的正式实例同步。旧版已提交报告与有效review可作为v2历史来源迁入。角色检查约束原型操作，不代替服务端身份认证。
+
+## 三维工厂场景接口（v2.2）
+
+sceneGraph.ts定义固定节点、稳定资源引用、父类型校验、导航路径和预设世界位置。sceneModels.ts按层级生成示意几何，disposeSceneGraph去重释放几何、材质和标签纹理；SceneView只维持一个渲染器、动画循环和控制器，切换层级释放旧图，卸载时取消监听、释放上下文。相机按内部面板扣除后的画面尺寸取景，车间优先框住可见实验设备。
+
+SceneWorkbench整合16∶9工作区、内部树、路径、控制与定位，SceneTreePanel处理模型查看、显隐和合法编辑。sceneView仅保存会话浏览状态，不进入报告指纹；SavedState.sceneLayout是v2可选持久字段，每轮关联sceneRevision。结构修改保存前后快照、暂停并清除实体点击凭证；isCurrentTrial还要求场景修订一致。
+
+reportBasis只在非初始场景时增加结构字段，保持旧v2和未编辑初始场景的提交兼容。教师继续使用提交时冻结的snapshotJson，展示该版本层级；不得从学生当前场景读取历史报告。新模型资源须维护稳定modelRef，后续替换真实模型应在加载层适配，同时释放其纹理和材质。

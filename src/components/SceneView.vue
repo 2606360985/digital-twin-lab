@@ -1,113 +1,65 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { onMounted,onBeforeUnmount,ref,watch } from 'vue'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { useLabSession } from '../session'
-import type { Equipment } from '../domain'
-import { RotateCcw, Move, MousePointer2, Expand } from 'lucide-vue-next'
-const props = defineProps<{ hero?: boolean }>()
-const lab = useLabSession(); const host = ref<HTMLDivElement>(); const error = ref('')
-let renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera, controls: OrbitControls, observer: ResizeObserver, frame = 0
-const groups = new Map<Equipment, THREE.Group>(), rings = new Map<Equipment, THREE.Mesh>(), labels = new Map<Equipment, { canvas: HTMLCanvasElement; texture: THREE.CanvasTexture; sprite: THREE.Sprite }>()
-const positions = { tank: -4.4, pump: 0, exchanger: 4.4 }
-function material(color: string, metalness = .25) { return new THREE.MeshStandardMaterial({ color, metalness, roughness: .48 }) }
-function mesh(geometry: THREE.BufferGeometry, mat: THREE.Material, parent: THREE.Object3D, x = 0, y = 0, z = 0) { const m = new THREE.Mesh(geometry, mat.clone()); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m }
-function cylinder(parent: THREE.Object3D, r: number, h: number, mat: THREE.Material, x = 0, y = 0, z = 0, horizontal = false) { const m = mesh(new THREE.CylinderGeometry(r, r, h, 40), mat, parent, x, y, z); if (horizontal) m.rotation.z = Math.PI / 2; return m }
-function pipe(points: number[][], color: string, radius = .09) { const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p as [number, number, number])), false, 'catmullrom', .15); mesh(new THREE.TubeGeometry(curve, 60, radius, 10, false), material(color, .5), scene) }
-function resetView() { if (!controls) return; camera.position.set(12, 9, 13); controls.target.set(0, .7, 0); controls.update() }
-function focus(id: Equipment) { if (!controls || props.hero) return; controls.target.set(positions[id] * .55, 1, 0); controls.update() }
-function updateLabels() {
-  if (!renderer) return
-  for (const [id, item] of labels) {
-    const ctx = item.canvas.getContext('2d')!; ctx.clearRect(0, 0, 480, 130)
-    ctx.fillStyle = 'rgba(255,255,255,0.96)'; ctx.beginPath(); ctx.roundRect(8, 8, 464, 108, 18); ctx.fill();
-    ctx.strokeStyle = lab.sceneSelected === id && !props.hero ? '#0d918a' : '#d4e2e1'; ctx.lineWidth = 3; ctx.stroke()
-    const model = lab.saved.config.assets.find(a => a.id === id)!; const info = lab.modelInfo(id); const asset = info.asset; const bound = lab.saved.config.bindings[id]
-    const value = info.reading
-    ctx.font = 'bold 25px "Microsoft YaHei", sans-serif'; ctx.fillStyle = '#203b43'; ctx.fillText(`${model.name}模型 → ${asset?.code ?? '未绑定'}`, 30, 48)
-    ctx.font = '22px "Microsoft YaHei", sans-serif'; ctx.fillStyle = value?.valid || props.hero ? '#527177' : '#a47931'
-    ctx.fillText(props.hero ? '数字对象 · 教学模型' : bound ? `${asset?.name ?? ''} ${value ? value.value.toFixed(2) + ' ' + value.unit + (value.valid ? '' : ' 无效') : '等待数据'}` : '尚未绑定资产 · 无数据', 30, 88)
-    item.texture.needsUpdate = true
-    groups.get(id)!.traverse(obj => { if (obj instanceof THREE.Mesh && obj.material instanceof THREE.MeshStandardMaterial) obj.material.emissive.set(lab.modelActive(id) ? '#602010' : '#000000') }); rings.get(id)!.visible = !props.hero && lab.sceneSelected === id
-    if (id === 'pump') {
-      const signal = groups.get(id)!.getObjectByName('signal') as THREE.Mesh
-      const mat = signal.material as THREE.MeshStandardMaterial
-      mat.color.set(lab.modelActive(id) ? '#e2714f' : '#24b6a5'); mat.emissive.copy(mat.color).multiplyScalar(.2)
-    }
-  }
+import { buildFactoryScene,disposeSceneGraph,type BuiltScene } from '../sceneModels'
+import { nodeById,nodePath,nodeVisible } from '../sceneGraph'
+const props=defineProps<{hero?:boolean}>(),lab=useLabSession(),host=ref<HTMLDivElement>(),error=ref('')
+let renderer:THREE.WebGLRenderer|undefined,scene:THREE.Scene,camera:THREE.PerspectiveCamera,controls:OrbitControls,observer:ResizeObserver,frame=0,built:BuiltScene|undefined
+let down={x:0,y:0},alive=false
+function scope(){return props.hero?'factory':lab.sceneView.levelId}
+function fit(id?:string){
+ if(!built||!renderer||!host.value)return
+ built.root.updateMatrixWorld(true)
+ const chosen=id?built.groups.get(id):null,box=new THREE.Box3()
+ const include=(group:THREE.Group)=>group.traverse(object=>{if(object instanceof THREE.Mesh&&visibleAncestors(object))box.union(new THREE.Box3().setFromObject(object))})
+ const devices=[...built.groups].filter(([key,group])=>group.visible&&nodeById(lab.sceneLayout,key)?.kind==='equipment')
+ if(chosen?.visible&&nodeById(lab.sceneLayout,id!)?.kind==='equipment')include(chosen)
+ else if(nodeById(lab.sceneLayout,scope())?.kind==='workshop'&&devices.length)devices.forEach(([,group])=>include(group))
+ else if(chosen?.visible)include(chosen)
+ else for(const group of built.groups.values())if(group.visible)include(group)
+ if(devices.length&&nodeById(lab.sceneLayout,scope())?.kind==='workshop')box.max.y+=1.5
+ if(box.isEmpty())box.setFromCenterAndSize(new THREE.Vector3(),new THREE.Vector3(12,6,12))
+ const center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3()),aspect=Math.max(.25,host.value.clientWidth/Math.max(1,host.value.clientHeight))
+ const distance=Math.max(7,Math.max(size.y,size.x/aspect,size.z*.7)/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)))*1.5)
+ camera.aspect=aspect;camera.far=Math.max(600,distance*10);camera.position.copy(center).add(new THREE.Vector3(1,1.1,1.25).normalize().multiplyScalar(distance));camera.updateProjectionMatrix();controls.target.copy(center);controls.minDistance=2;controls.maxDistance=Math.max(200,distance*4);controls.update()
 }
-let down = { x: 0, y: 0 }
-function onDown(e: PointerEvent) { down = { x: e.clientX, y: e.clientY } }
-function onClick(e: PointerEvent) {
-  if (props.hero || Math.hypot(down.x - e.clientX, down.y - e.clientY) > 5) return
-  const rect = renderer.domElement.getBoundingClientRect(); const pointer = new THREE.Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -(e.clientY - rect.top) / rect.height * 2 + 1)
-  const ray = new THREE.Raycaster(); ray.setFromCamera(pointer, camera)
-  const hit = ray.intersectObjects([...groups.values()], true).find(h => h.object.type === 'Mesh')
-  if (hit) { let node: THREE.Object3D | null = hit.object; while (node && !node.userData.asset) node = node.parent; if (node?.userData.asset) lab.choose(node.userData.asset, 'scene') }
+function paint(){
+ if(!built)return
+ for(const [id,g]of built.groups){const node=nodeById(lab.sceneLayout,id)!;g.visible=props.hero||nodeVisible(lab.sceneLayout,id,lab.sceneView)
+  const models=lab.sceneLayout.nodes.filter(n=>n.assetId&&nodePath(lab.sceneLayout,n.id).some(p=>p.id===id))
+  const active=!props.hero&&models.some(n=>lab.modelActive(n.assetId!)),selected=!props.hero&&lab.sceneView.selectedId===id
+  g.traverse(obj=>{if(obj instanceof THREE.Mesh){const list=Array.isArray(obj.material)?obj.material:[obj.material];for(const m of list)if(m instanceof THREE.MeshStandardMaterial){m.emissive.set(active?'#c45e35':selected?'#246d4d':'#000000');m.emissiveIntensity=active ? .28 : selected ? .15 : 0;if(obj.name==='signal')m.color.set(active?'#e3834d':'#24b6a5')}}})
+  void node
+ }
+ for(const label of built.labels){const node=nodeById(lab.sceneLayout,label.nodeId)!;const ctx=label.canvas.getContext('2d')!;ctx.clearRect(0,0,640,144);ctx.fillStyle='#fffffff0';ctx.beginPath();ctx.roundRect(5,5,630,128,14);ctx.fill();ctx.strokeStyle=lab.sceneView.selectedId===node.id&&!props.hero?'#16856e':'#c3d5ca';ctx.lineWidth=3;ctx.stroke()
+  let title=node.name,detail=node.kind==='area'?'教学区域 · 双击进入':'教学车间 · 双击进入'
+  if(node.assetId){const info=lab.modelInfo(node.assetId);title=`${node.name} → ${info.asset?.code??'未绑定'}`;detail=info.asset?`${info.asset.name} · ${info.reading?info.reading.value.toFixed(2)+' '+info.reading.unit+(info.reading.valid?'':' · 无效'):'等待数据'}`:'尚未绑定资产 · 无数据'}
+  else if(node.kind==='workshop'){const count=lab.sceneLayout.nodes.filter(n=>n.parentId===node.id&&n.assetId).length;detail=count?`${count}个实验设备模型 · 双击进入`:'示意模型 · 相关实验待建设'}
+  const text=(value:string,y:number,bold=false)=>{let size=bold?44:36;ctx.font=`${bold?'bold ':''}${size}px Microsoft YaHei,sans-serif`;while(size>22&&ctx.measureText(value).width>595){size--;ctx.font=`${bold?'bold ':''}${size}px Microsoft YaHei,sans-serif`};ctx.fillStyle=bold?'#254f41':'#658471';ctx.fillText(value,22,y,595)}
+  text(title,51,true);text(detail,101);label.texture.needsUpdate=true
+ }
 }
-onMounted(() => {
-  try {
-    scene = new THREE.Scene(); scene.background = new THREE.Color('#edf3f3'); scene.fog = new THREE.Fog('#edf3f3', 28, 65)
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false }); renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6)); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.3
-    host.value!.appendChild(renderer.domElement); renderer.domElement.setAttribute('aria-label', '可旋转和点击的三维教学设备场景')
-    camera = new THREE.PerspectiveCamera(36, 1, .1, 100); controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.maxPolarAngle = Math.PI / 2.1; controls.minDistance = 7; controls.maxDistance = 30; resetView()
-    scene.add(new THREE.HemisphereLight('#ecffff', '#a4aaa7', 3)); const light = new THREE.DirectionalLight('#fff9ef', 4); light.position.set(4, 12, 5); light.castShadow = true; light.shadow.mapSize.set(2048, 2048); Object.assign(light.shadow.camera, { left: -14, right: 14, top: 12, bottom: -12 }); light.shadow.bias = -.001; scene.add(light)
-    const floor = mesh(new THREE.PlaneGeometry(120, 120), material('#e7eeee', 0), scene); floor.rotation.x = -Math.PI / 2; floor.position.y = -.15
-    const grid = new THREE.GridHelper(40, 40, '#c6d8d7', '#dce5e4'); grid.position.y = -.14; scene.add(grid)
-    const white = material('#f7fafa', .5), dark = material('#426369', .6), teal = material('#4faaa6', .5), steel = material('#b9cccd', .65), yellow = material('#e9b557', .2)
-    for (const id of ['tank', 'pump', 'exchanger'] as Equipment[]) {
-      const g = new THREE.Group(); g.position.x = positions[id]; g.userData.asset = id; groups.set(id, g); scene.add(g)
-      mesh(new THREE.BoxGeometry(3.6, .2, 3.8), material('#cddddd', .1), g, 0, 0, 0)
-      const border = new THREE.EdgesGeometry(new THREE.BoxGeometry(3.6, .2, 3.8)); const line = new THREE.LineSegments(border, new THREE.LineBasicMaterial({ color: '#b2c9c7' })); g.add(line)
-      const ring = mesh(new THREE.RingGeometry(1.7, 1.76, 64), new THREE.MeshBasicMaterial({ color: '#0d9990', side: THREE.DoubleSide, transparent: true, opacity: .8 }), g, 0, .12, 0); ring.rotation.x = -Math.PI / 2; rings.set(id, ring)
-      if (id === 'tank') {
-        for (const x of [-.65, .65]) for (const z of [-.65, .65]) cylinder(g, .09, .65, dark, x, .4, z)
-        cylinder(g, 1.02, 2.4, white, 0, 1.85); cylinder(g, 1.06, .1, steel, 0, .7); cylinder(g, 1.06, .1, steel, 0, 3.05)
-        const lid = mesh(new THREE.SphereGeometry(1.02, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), white, g, 0, 3.05); lid.scale.y = .28
-        cylinder(g, .24, .3, steel, 0, 3.45); cylinder(g, 1.026, .22, teal, 0, 1.7)
-        mesh(new THREE.BoxGeometry(.15, 1.5, .07), dark, g, .7, 1.95, .76); mesh(new THREE.BoxGeometry(.08, 1, .08), yellow, g, .7, 1.75, .81)
-      } else if (id === 'pump') {
-        mesh(new THREE.BoxGeometry(2.9, .25, 1.3), dark, g, 0, .28)
-        cylinder(g, .5, 1.3, teal, -.55, 1, 0, true)
-        for (let x = -1; x < -.1; x += .13) cylinder(g, .54, .045, dark, x, 1, 0, true)
-        cylinder(g, .61, .65, white, .6, 1, 0, true); cylinder(g, .2, .55, steel, .65, 1.7); cylinder(g, .19, .5, steel, 1.1, 1, 0, true)
-        mesh(new THREE.BoxGeometry(.48, .3, .48), dark, g, -.65, 1.65)
-        const signal = cylinder(g, .095, .13, material('#24b6a5'), -.65, 1.88); signal.name = 'signal'
-      } else {
-        for (const x of [-1, 1]) mesh(new THREE.BoxGeometry(.28, .7, 1), dark, g, x, .5)
-        cylinder(g, .65, 2.6, white, 0, 1.3, 0, true)
-        for (const x of [-1.35, 1.35]) { cylinder(g, .75, .15, teal, x, 1.3, 0, true); for (let k = 0; k < 8; k++) { const t = k * Math.PI / 4; cylinder(g, .05, .22, dark, x, 1.3 + Math.sin(t) * .64, Math.cos(t) * .64, true) } }
-        cylinder(g, .2, .5, steel, -.7, 2.1); cylinder(g, .2, .5, steel, .7, 2.1)
-      }
-      const canvas = document.createElement('canvas'); canvas.width = 480; canvas.height = 130; const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace
-      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false })); sprite.scale.set(3.4, .92, 1); sprite.position.set(0, id === 'tank' ? 4.4 : 3.2, .2); g.add(sprite); labels.set(id, { canvas, texture, sprite })
-    }
-    pipe([[-3.4, .95, 0], [-2.7, .95, 0], [-2.7, .45, 1.1], [-1.5, .45, 1.1], [-1.5, 1, 0], [-1.2, 1, 0]], '#6baaa5', .13)
-    pipe([[.65, 1.95, 0], [.65, 2.4, 0], [2.4, 2.4, 0], [2.4, 1.3, 0], [3, 1.3, 0]], '#e9b557', .12)
-    pipe([[5.1, 2.35, 0], [5.1, 2.7, 0], [6.6, 2.7, 0], [6.6, .4, 1.2], [6.6, .4, 3.5]], '#6baaa5', .1)
-    renderer.domElement.addEventListener('pointerdown', onDown); renderer.domElement.addEventListener('pointerup', onClick)
-    observer = new ResizeObserver(() => { if (!host.value) return; const { width, height } = host.value.getBoundingClientRect(); renderer.setSize(width, height); camera.aspect = width / height; camera.updateProjectionMatrix() }); observer.observe(host.value!)
-    updateLabels(); if (!props.hero) lab.sceneReady = true
-    function render() { frame = requestAnimationFrame(render); controls.update(); renderer.render(scene, camera) }; render()
-  } catch (e) { error.value = '当前浏览器无法创建WebGL三维场景。请启用硬件加速并使用Chrome或Edge；三维相关任务暂不能通过。'; if (!props.hero) lab.sceneReady = false; console.warn(e) }
+function rebuild(){if(!scene||!alive)return;if(built){scene.remove(built.root);disposeSceneGraph(built.root)}built=buildFactoryScene(lab.sceneLayout,scope());scene.add(built.root);paint();fit();if(!props.hero)lab.sceneReady=true}
+function pick(event:MouseEvent|PointerEvent){if(!renderer||!built)return null;const rect=renderer.domElement.getBoundingClientRect(),point=new THREE.Vector2((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1),ray=new THREE.Raycaster();ray.setFromCamera(point,camera);const hit=ray.intersectObjects(built.root.children,true).find(h=>h.object instanceof THREE.Mesh&&h.object.visible&&visibleAncestors(h.object));let obj:THREE.Object3D|null=hit?.object??null;while(obj&&!obj.userData.nodeId)obj=obj.parent;return obj?.userData.nodeId as string|undefined}
+function visibleAncestors(obj:THREE.Object3D){for(let p:THREE.Object3D|null=obj;p;p=p.parent)if(!p.visible)return false;return true}
+function onDown(e:PointerEvent){down={x:e.clientX,y:e.clientY}}
+function onUp(e:PointerEvent){if(props.hero||Math.hypot(e.clientX-down.x,e.clientY-down.y)>5)return;const id=pick(e);if(id)lab.selectSceneNode(id,'canvas')}
+function onDouble(e:MouseEvent){if(props.hero)return;const id=pick(e),n=id?nodeById(lab.sceneLayout,id):null;if(n&&(n.kind==='area'||n.kind==='workshop'))lab.enterSceneNode(n.id)}
+onMounted(()=>{
+ try{scene=new THREE.Scene();scene.background=new THREE.Color('#edf3ef');camera=new THREE.PerspectiveCamera(36,1,.1,1000);renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;host.value!.appendChild(renderer.domElement);renderer.domElement.setAttribute('aria-label','可旋转和点击的工厂三维场景')
+  controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.maxPolarAngle=Math.PI/2.05;scene.add(new THREE.HemisphereLight('#f2fff5','#a4b7a4',1.4));const sun=new THREE.DirectionalLight('#fff9e8',2.5);sun.position.set(25,55,35);sun.castShadow=true;sun.shadow.bias=-.001;sun.shadow.normalBias=.08;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-100,right:100,top:100,bottom:-100,far:200});scene.add(sun)
+  alive=true;rebuild();renderer.domElement.addEventListener('pointerdown',onDown);renderer.domElement.addEventListener('pointerup',onUp);renderer.domElement.addEventListener('dblclick',onDouble)
+  observer=new ResizeObserver(()=>{if(!renderer||!host.value)return;const {width,height}=host.value.getBoundingClientRect();renderer.setSize(Math.max(1,width),Math.max(1,height));camera.aspect=width/Math.max(1,height);camera.updateProjectionMatrix();fit(lab.sceneView.focusId)});observer.observe(host.value!)
+  const render=()=>{if(!alive||!renderer)return;frame=requestAnimationFrame(render);controls.update();for(const label of built?.labels??[]){const world=new THREE.Vector3();label.sprite.getWorldPosition(world);const pixels=Math.min(180,(host.value?.clientWidth??640)*.25);const width=2*camera.position.distanceTo(world)*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*pixels/Math.max(1,host.value?.clientHeight??1);label.sprite.scale.set(width,width*144/640,1)}renderer.render(scene,camera)};render()
+ }catch(cause){error.value='当前浏览器无法创建WebGL三维场景，三维相关任务暂不能通过。请检查浏览器硬件加速。';if(!props.hero)lab.sceneReady=false;console.warn(cause)}
 })
-watch(() => [lab.sceneSelected, lab.selected, lab.latest, lab.saved.config.bindings, lab.saved.config.assets, lab.saved.config.point, lab.currentMatches, lab.active?.detector.active], updateLabels, { deep: true })
-watch(() => lab.sceneSelected, focus)
-onBeforeUnmount(() => {
-  cancelAnimationFrame(frame); observer?.disconnect(); controls?.dispose()
-  renderer?.domElement.removeEventListener('pointerdown', onDown); renderer?.domElement.removeEventListener('pointerup', onClick)
-  scene?.traverse(obj => { if (obj instanceof THREE.Mesh || obj instanceof THREE.LineSegments) { obj.geometry?.dispose(); const mats = Array.isArray(obj.material) ? obj.material : [obj.material]; mats.forEach(m => m.dispose()) } })
-  labels.forEach(x => { x.texture.dispose(); (x.sprite.material as THREE.Material).dispose() }); renderer?.dispose(); renderer?.forceContextLoss(); if (!props.hero) lab.sceneReady = false
-})
+watch(()=>[lab.sceneLayout,scope()],rebuild,{deep:true})
+watch(()=>[lab.latest,lab.saved.config.bindings,lab.saved.config.assets,lab.saved.config.point,lab.active?.detector.active,lab.currentMatches,lab.sceneView.selectedId,lab.sceneView.hidden,lab.sceneView.isolatedId],paint,{deep:true})
+watch(()=>lab.sceneView.focusNonce,()=>{if(!props.hero)fit(lab.sceneView.focusId)})
+onBeforeUnmount(()=>{alive=false;cancelAnimationFrame(frame);observer?.disconnect();controls?.dispose();if(renderer){renderer.domElement.removeEventListener('pointerdown',onDown);renderer.domElement.removeEventListener('pointerup',onUp);renderer.domElement.removeEventListener('dblclick',onDouble)}if(built){scene.remove(built.root);disposeSceneGraph(built.root);built=undefined}renderer?.dispose();renderer?.forceContextLoss();renderer?.domElement.remove();renderer=undefined;if(!props.hero)lab.sceneReady=false})
+defineExpose({resetView:()=>fit(),focusSelection:()=>fit(lab.sceneView.selectedId)})
 </script>
-<template>
-  <div class="scene-view" :class="{ hero }">
-    <div ref="host" class="scene-canvas"></div>
-    <div v-if="error" class="scene-error">{{ error }}</div>
-    <div class="scene-corner"><span class="live-dot"></span>{{ hero ? '自主构建的教学场景' : '教学监测区 A' }}<span class="subtle">/ 3 个数字对象</span></div>
-    <div class="scene-tools"><button @click="resetView" title="恢复默认视角" aria-label="恢复默认视角"><RotateCcw :size="16" /></button><button @click="host?.parentElement?.requestFullscreen?.()" title="全屏场景" aria-label="全屏场景"><Expand :size="16" /></button></div>
-    <div class="scene-help"><span><MousePointer2 :size="12" /> 点击选择</span><span><Move :size="12" /> 拖动旋转 · 滚轮缩放</span></div>
-    <span class="scene-tag">THREE.JS · 3D WORKSPACE</span>
-  </div>
-</template>
-
+<template><div class="scene-view factory-renderer" :class="{hero}" :data-scene-level="hero?'factory':lab.sceneView.levelId"><div ref="host" class="factory-render-host"></div><div v-if="error" class="scene-error">{{ error }}</div><span class="factory-model-note">程序化教学示意 · 非企业真实布局</span></div></template>
+<style scoped>.factory-renderer{position:relative;overflow:hidden;min-width:0;min-height:0}.factory-renderer:not(.hero){height:100%!important;width:100%}.factory-render-host{position:absolute;inset:0}.factory-render-host :deep(canvas){display:block;width:100%;height:100%;touch-action:none}.factory-model-note{position:absolute;left:8px;bottom:5px;font-size:9px;color:#88a191;pointer-events:none}</style>
