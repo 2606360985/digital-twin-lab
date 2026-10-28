@@ -1,0 +1,4108 @@
+{
+  "version": 1,
+  "courseId": "full-course",
+  "dataset": "full-course-stage1-v1",
+  "config": {
+    "requirements": [
+      {
+        "kind": "对象",
+        "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+        "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+      },
+      {
+        "kind": "数据",
+        "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+        "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+      },
+      {
+        "kind": "交互",
+        "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+        "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+      },
+      {
+        "kind": "AI",
+        "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+        "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+      }
+    ],
+    "architecture": {
+      "scopes": {
+        "source": "production",
+        "gateway": "teaching",
+        "storage": "teaching",
+        "twin": "teaching",
+        "knowledge": "teaching",
+        "ai": "teaching"
+      },
+      "edges": [
+        {
+          "from": "source",
+          "to": "gateway",
+          "access": "read"
+        },
+        {
+          "from": "gateway",
+          "to": "storage",
+          "access": "write"
+        },
+        {
+          "from": "storage",
+          "to": "twin",
+          "access": "read"
+        },
+        {
+          "from": "knowledge",
+          "to": "ai",
+          "access": "read"
+        },
+        {
+          "from": "storage",
+          "to": "ai",
+          "access": "read"
+        },
+        {
+          "from": "ai",
+          "to": "twin",
+          "access": "read"
+        }
+      ],
+      "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+    },
+    "layout": {
+      "version": 1,
+      "revision": 0,
+      "nodes": [
+        {
+          "id": "factory",
+          "name": "废塑料热解炼油教学工厂",
+          "kind": "factory",
+          "parentId": null,
+          "modelRef": "teaching-factory-v1"
+        },
+        {
+          "id": "area-preprocess",
+          "name": "原料预处理区",
+          "kind": "area",
+          "parentId": "factory",
+          "modelRef": "preprocess-area-v1"
+        },
+        {
+          "id": "area-pyrolysis",
+          "name": "热解与冷凝区",
+          "kind": "area",
+          "parentId": "factory",
+          "modelRef": "pyrolysis-area-v1"
+        },
+        {
+          "id": "area-utilities",
+          "name": "储运及公用工程区",
+          "kind": "area",
+          "parentId": "factory",
+          "modelRef": "utilities-area-v1"
+        },
+        {
+          "id": "workshop-preprocess",
+          "name": "原料预处理车间",
+          "kind": "workshop",
+          "parentId": "area-preprocess",
+          "modelRef": "preprocess-workshop-v1"
+        },
+        {
+          "id": "workshop-pyrolysis",
+          "name": "热解工艺示意车间",
+          "kind": "workshop",
+          "parentId": "area-pyrolysis",
+          "modelRef": "pyrolysis-workshop-v1"
+        },
+        {
+          "id": "workshop-monitoring",
+          "name": "设备监测教学车间",
+          "kind": "workshop",
+          "parentId": "area-pyrolysis",
+          "modelRef": "monitoring-workshop-v1"
+        },
+        {
+          "id": "workshop-utilities",
+          "name": "储运与公用工程车间",
+          "kind": "workshop",
+          "parentId": "area-utilities",
+          "modelRef": "utilities-workshop-v1"
+        },
+        {
+          "id": "model-tank",
+          "name": "储罐模型",
+          "kind": "equipment",
+          "parentId": "workshop-monitoring",
+          "modelRef": "tank-v1",
+          "assetId": "tank"
+        },
+        {
+          "id": "model-pump",
+          "name": "离心泵模型",
+          "kind": "equipment",
+          "parentId": "workshop-monitoring",
+          "modelRef": "pump-v1",
+          "assetId": "pump"
+        },
+        {
+          "id": "model-exchanger",
+          "name": "换热器模型",
+          "kind": "equipment",
+          "parentId": "workshop-monitoring",
+          "modelRef": "exchanger-v1",
+          "assetId": "exchanger"
+        }
+      ]
+    },
+    "assets": [
+      {
+        "id": "tank",
+        "name": "储罐",
+        "code": "T-001"
+      },
+      {
+        "id": "pump",
+        "name": "离心泵",
+        "code": "P-001"
+      },
+      {
+        "id": "exchanger",
+        "name": "换热器",
+        "code": "HX-001"
+      }
+    ],
+    "dictionary": {
+      "tank": {
+        "field": "tank_level",
+        "type": "number",
+        "unit": "%",
+        "min": 0,
+        "max": 100,
+        "qualityCodes": "good,bad,missing,stale"
+      },
+      "pump": {
+        "field": "motor_i",
+        "type": "number",
+        "unit": "A",
+        "min": 0,
+        "max": 12,
+        "qualityCodes": "good,bad,missing,stale"
+      },
+      "exchanger": {
+        "field": "outlet_temp",
+        "type": "number",
+        "unit": "℃",
+        "min": 0,
+        "max": 120,
+        "qualityCodes": "good,bad,missing,stale"
+      }
+    },
+    "positions": {
+      "tank": [
+        0,
+        0,
+        0
+      ],
+      "pump": [
+        1,
+        0,
+        0
+      ],
+      "exchanger": [
+        0,
+        0,
+        0
+      ]
+    },
+    "mappings": {
+      "tank": {
+        "assetId": "tank",
+        "field": "tank_level",
+        "sourceId": "teaching-tank"
+      },
+      "pump": {
+        "assetId": "pump",
+        "field": "motor_i",
+        "sourceId": "teaching-pump"
+      },
+      "exchanger": {
+        "assetId": "exchanger",
+        "field": "outlet_temp",
+        "sourceId": "teaching-exchanger"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+      "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+    },
+    {
+      "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+      "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+    },
+    {
+      "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+      "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+    },
+    {
+      "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+      "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+    },
+    {
+      "prediction": "错误单位会使泵电流字典不一致；修复A后应通过。",
+      "observation": "单位由A改为百分比，检查字典不一致反馈，再恢复A。"
+    },
+    {
+      "prediction": "越界位置应被拒绝，合法位置并点选实体后可以核对空间身份。",
+      "observation": "先验证99米越界，再改为1米，并在画布核对三台设备身份。"
+    },
+    {
+      "prediction": "漏配应无关联，错配应显示错误资产，修复后实体身份与源元数据一致。",
+      "observation": "分别校验漏配和错配，恢复正确资产、字段与数据源后重新点选实体。"
+    }
+  ],
+  "records": [
+    {
+      "id": 1,
+      "step": 1,
+      "at": "2026-10-28T05:33:01.816Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [],
+          "rationale": ""
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 2,
+      "step": 2,
+      "at": "2026-10-28T05:33:17.196Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 3,
+      "step": 3,
+      "at": "2026-10-28T05:33:28.486Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "model-pump",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 4,
+      "step": 3,
+      "at": "2026-10-28T05:33:28.785Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 5,
+      "step": 4,
+      "at": "2026-10-28T05:33:29.471Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "t-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 6,
+      "step": 4,
+      "at": "2026-10-28T05:33:29.805Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "1"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 7,
+      "step": 4,
+      "at": "2026-10-28T05:33:30.104Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 8,
+      "step": 5,
+      "at": "2026-10-28T05:33:43.287Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "错误单位会使泵电流字典不一致；修复A后应通过。",
+          "observation": "单位由A改为百分比，检查字典不一致反馈，再恢复A。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 9,
+      "step": 5,
+      "at": "2026-10-28T05:33:43.614Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            0,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "错误单位会使泵电流字典不一致；修复A后应通过。",
+          "observation": "单位由A改为百分比，检查字典不一致反馈，再恢复A。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 10,
+      "step": 6,
+      "at": "2026-10-28T05:33:44.564Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            99,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "错误单位会使泵电流字典不一致；修复A后应通过。",
+          "observation": "单位由A改为百分比，检查字典不一致反馈，再恢复A。"
+        },
+        {
+          "prediction": "越界位置应被拒绝，合法位置并点选实体后可以核对空间身份。",
+          "observation": "先验证99米越界，再改为1米，并在画布核对三台设备身份。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": []
+    },
+    {
+      "id": 11,
+      "step": 6,
+      "at": "2026-10-28T05:34:04.585Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            1,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "错误单位会使泵电流字典不一致；修复A后应通过。",
+          "observation": "单位由A改为百分比，检查字典不一致反馈，再恢复A。"
+        },
+        {
+          "prediction": "越界位置应被拒绝，合法位置并点选实体后可以核对空间身份。",
+          "observation": "先验证99米越界，再改为1米，并在画布核对三台设备身份。"
+        },
+        {
+          "prediction": "",
+          "observation": ""
+        }
+      ],
+      "clicks": [
+        {
+          "step": 6,
+          "model": "tank",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:33:53.181Z"
+        },
+        {
+          "step": 6,
+          "model": "pump",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:33:57.514Z"
+        },
+        {
+          "step": 6,
+          "model": "exchanger",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:34:04.485Z"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "step": 7,
+      "at": "2026-10-28T05:34:41.247Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            1,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "pump": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          },
+          "exchanger": {
+            "assetId": "",
+            "field": "",
+            "sourceId": ""
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "错误单位会使泵电流字典不一致；修复A后应通过。",
+          "observation": "单位由A改为百分比，检查字典不一致反馈，再恢复A。"
+        },
+        {
+          "prediction": "越界位置应被拒绝，合法位置并点选实体后可以核对空间身份。",
+          "observation": "先验证99米越界，再改为1米，并在画布核对三台设备身份。"
+        },
+        {
+          "prediction": "漏配应无关联，错配应显示错误资产，修复后实体身份与源元数据一致。",
+          "observation": "分别校验漏配和错配，恢复正确资产、字段与数据源后重新点选实体。"
+        }
+      ],
+      "clicks": [
+        {
+          "step": 6,
+          "model": "tank",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:33:53.181Z"
+        },
+        {
+          "step": 6,
+          "model": "pump",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:33:57.514Z"
+        },
+        {
+          "step": 6,
+          "model": "exchanger",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:34:04.485Z"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "step": 7,
+      "at": "2026-10-28T05:34:41.812Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            1,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "tank",
+            "field": "tank_level",
+            "sourceId": "teaching-tank"
+          },
+          "pump": {
+            "assetId": "tank",
+            "field": "motor_i",
+            "sourceId": "teaching-pump"
+          },
+          "exchanger": {
+            "assetId": "exchanger",
+            "field": "outlet_temp",
+            "sourceId": "teaching-exchanger"
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "错误单位会使泵电流字典不一致；修复A后应通过。",
+          "observation": "单位由A改为百分比，检查字典不一致反馈，再恢复A。"
+        },
+        {
+          "prediction": "越界位置应被拒绝，合法位置并点选实体后可以核对空间身份。",
+          "observation": "先验证99米越界，再改为1米，并在画布核对三台设备身份。"
+        },
+        {
+          "prediction": "漏配应无关联，错配应显示错误资产，修复后实体身份与源元数据一致。",
+          "observation": "分别校验漏配和错配，恢复正确资产、字段与数据源后重新点选实体。"
+        }
+      ],
+      "clicks": [
+        {
+          "step": 6,
+          "model": "tank",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:33:53.181Z"
+        },
+        {
+          "step": 6,
+          "model": "pump",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:33:57.514Z"
+        },
+        {
+          "step": 6,
+          "model": "exchanger",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:34:04.485Z"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "step": 7,
+      "at": "2026-10-28T05:34:59.330Z",
+      "dataset": "full-course-stage1-v1",
+      "config": {
+        "requirements": [
+          {
+            "kind": "对象",
+            "need": "对象需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "数据",
+            "need": "数据需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "交互",
+            "need": "交互需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          },
+          {
+            "kind": "AI",
+            "need": "AI需求：在教学沙盒中建立可追溯的设备监测能力。",
+            "acceptance": "执行对应操作后核对资产身份、反馈与可导出的记录。"
+          }
+        ],
+        "architecture": {
+          "scopes": {
+            "source": "production",
+            "gateway": "teaching",
+            "storage": "teaching",
+            "twin": "teaching",
+            "knowledge": "teaching",
+            "ai": "teaching"
+          },
+          "edges": [
+            {
+              "from": "source",
+              "to": "gateway",
+              "access": "read"
+            },
+            {
+              "from": "gateway",
+              "to": "storage",
+              "access": "write"
+            },
+            {
+              "from": "storage",
+              "to": "twin",
+              "access": "read"
+            },
+            {
+              "from": "knowledge",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "storage",
+              "to": "ai",
+              "access": "read"
+            },
+            {
+              "from": "ai",
+              "to": "twin",
+              "access": "read"
+            }
+          ],
+          "rationale": "生产源只读输入，教学沙盒承接所有写操作；存储与知识库分别给AI提供时序数据和技术资料。"
+        },
+        "layout": {
+          "version": 1,
+          "revision": 0,
+          "nodes": [
+            {
+              "id": "factory",
+              "name": "废塑料热解炼油教学工厂",
+              "kind": "factory",
+              "parentId": null,
+              "modelRef": "teaching-factory-v1"
+            },
+            {
+              "id": "area-preprocess",
+              "name": "原料预处理区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "preprocess-area-v1"
+            },
+            {
+              "id": "area-pyrolysis",
+              "name": "热解与冷凝区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "pyrolysis-area-v1"
+            },
+            {
+              "id": "area-utilities",
+              "name": "储运及公用工程区",
+              "kind": "area",
+              "parentId": "factory",
+              "modelRef": "utilities-area-v1"
+            },
+            {
+              "id": "workshop-preprocess",
+              "name": "原料预处理车间",
+              "kind": "workshop",
+              "parentId": "area-preprocess",
+              "modelRef": "preprocess-workshop-v1"
+            },
+            {
+              "id": "workshop-pyrolysis",
+              "name": "热解工艺示意车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "pyrolysis-workshop-v1"
+            },
+            {
+              "id": "workshop-monitoring",
+              "name": "设备监测教学车间",
+              "kind": "workshop",
+              "parentId": "area-pyrolysis",
+              "modelRef": "monitoring-workshop-v1"
+            },
+            {
+              "id": "workshop-utilities",
+              "name": "储运与公用工程车间",
+              "kind": "workshop",
+              "parentId": "area-utilities",
+              "modelRef": "utilities-workshop-v1"
+            },
+            {
+              "id": "model-tank",
+              "name": "储罐模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "tank-v1",
+              "assetId": "tank"
+            },
+            {
+              "id": "model-pump",
+              "name": "离心泵模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "pump-v1",
+              "assetId": "pump"
+            },
+            {
+              "id": "model-exchanger",
+              "name": "换热器模型",
+              "kind": "equipment",
+              "parentId": "workshop-monitoring",
+              "modelRef": "exchanger-v1",
+              "assetId": "exchanger"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "id": "tank",
+            "name": "储罐",
+            "code": "T-001"
+          },
+          {
+            "id": "pump",
+            "name": "离心泵",
+            "code": "P-001"
+          },
+          {
+            "id": "exchanger",
+            "name": "换热器",
+            "code": "HX-001"
+          }
+        ],
+        "dictionary": {
+          "tank": {
+            "field": "tank_level",
+            "type": "number",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "pump": {
+            "field": "motor_i",
+            "type": "number",
+            "unit": "A",
+            "min": 0,
+            "max": 12,
+            "qualityCodes": "good,bad,missing,stale"
+          },
+          "exchanger": {
+            "field": "outlet_temp",
+            "type": "number",
+            "unit": "℃",
+            "min": 0,
+            "max": 120,
+            "qualityCodes": "good,bad,missing,stale"
+          }
+        },
+        "positions": {
+          "tank": [
+            0,
+            0,
+            0
+          ],
+          "pump": [
+            1,
+            0,
+            0
+          ],
+          "exchanger": [
+            0,
+            0,
+            0
+          ]
+        },
+        "mappings": {
+          "tank": {
+            "assetId": "tank",
+            "field": "tank_level",
+            "sourceId": "teaching-tank"
+          },
+          "pump": {
+            "assetId": "pump",
+            "field": "motor_i",
+            "sourceId": "teaching-pump"
+          },
+          "exchanger": {
+            "assetId": "exchanger",
+            "field": "outlet_temp",
+            "sourceId": "teaching-exchanger"
+          }
+        }
+      },
+      "inputs": [
+        {
+          "prediction": "完成四类需求后应能逐项核对原型输入、对象和预期结果。",
+          "observation": "四类需求与验收条件均已填写，等待教师评价可测试性。"
+        },
+        {
+          "prediction": "生产侧只读，采集治理后的数据供存储、三维和AI读取。",
+          "observation": "六条连接已配置，环境边界与读写方式均符合教学只读接入约束。"
+        },
+        {
+          "prediction": "自引用会导致层级路径无效，修复到车间后应通过。",
+          "observation": "尝试将泵设为自己的父节点，检查非法反馈后修复。"
+        },
+        {
+          "prediction": "大小写不同的相同编码仍然冲突，数字开头不符合规范。",
+          "observation": "分别测试重复编码与非法格式，再恢复唯一编码P-001。"
+        },
+        {
+          "prediction": "错误单位会使泵电流字典不一致；修复A后应通过。",
+          "observation": "单位由A改为百分比，检查字典不一致反馈，再恢复A。"
+        },
+        {
+          "prediction": "越界位置应被拒绝，合法位置并点选实体后可以核对空间身份。",
+          "observation": "先验证99米越界，再改为1米，并在画布核对三台设备身份。"
+        },
+        {
+          "prediction": "漏配应无关联，错配应显示错误资产，修复后实体身份与源元数据一致。",
+          "observation": "分别校验漏配和错配，恢复正确资产、字段与数据源后重新点选实体。"
+        }
+      ],
+      "clicks": [
+        {
+          "step": 6,
+          "model": "tank",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:33:53.181Z"
+        },
+        {
+          "step": 6,
+          "model": "pump",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:33:57.514Z"
+        },
+        {
+          "step": 6,
+          "model": "exchanger",
+          "basis": "1418:2099947551:4240165497",
+          "at": "2026-10-28T05:34:04.485Z"
+        },
+        {
+          "step": 7,
+          "model": "tank",
+          "basis": "2137:839425851:3607029851",
+          "at": "2026-10-28T05:34:49.022Z"
+        },
+        {
+          "step": 7,
+          "model": "pump",
+          "basis": "2137:839425851:3607029851",
+          "at": "2026-10-28T05:34:53.845Z"
+        },
+        {
+          "step": 7,
+          "model": "exchanger",
+          "basis": "2137:839425851:3607029851",
+          "at": "2026-10-28T05:34:59.212Z"
+        }
+      ]
+    }
+  ],
+  "clicks": [
+    {
+      "step": 6,
+      "model": "tank",
+      "basis": "1418:2099947551:4240165497",
+      "at": "2026-10-28T05:33:53.181Z"
+    },
+    {
+      "step": 6,
+      "model": "pump",
+      "basis": "1418:2099947551:4240165497",
+      "at": "2026-10-28T05:33:57.514Z"
+    },
+    {
+      "step": 6,
+      "model": "exchanger",
+      "basis": "1418:2099947551:4240165497",
+      "at": "2026-10-28T05:34:04.485Z"
+    },
+    {
+      "step": 7,
+      "model": "tank",
+      "basis": "2137:839425851:3607029851",
+      "at": "2026-10-28T05:34:49.022Z"
+    },
+    {
+      "step": 7,
+      "model": "pump",
+      "basis": "2137:839425851:3607029851",
+      "at": "2026-10-28T05:34:53.845Z"
+    },
+    {
+      "step": 7,
+      "model": "exchanger",
+      "basis": "2137:839425851:3607029851",
+      "at": "2026-10-28T05:34:59.212Z"
+    }
+  ],
+  "step": 6,
+  "page": "task"
+}

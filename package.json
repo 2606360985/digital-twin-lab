@@ -1,9 +1,10 @@
 {
   "name": "digital-twin-lab",
   "private": true,
-  "version": "2.2.1",
+  "version": "3.0.0",
   "type": "module",
   "scripts": {
+    "course:docs": "node --experimental-strip-types scripts/export-course-design.mjs",
     "dev": "vite --host 127.0.0.1",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",

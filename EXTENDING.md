@@ -39,3 +39,29 @@ sceneGraph.ts定义固定节点、稳定资源引用、父类型校验、导航�
 SceneWorkbench整合16∶9工作区、内部树、路径、控制与定位，SceneTreePanel处理模型查看、显隐和合法编辑。sceneView仅保存会话浏览状态，不进入报告指纹；SavedState.sceneLayout是v2可选持久字段，每轮关联sceneRevision。结构修改保存前后快照、暂停并清除实体点击凭证；isCurrentTrial还要求场景修订一致。
 
 reportBasis只在非初始场景时增加结构字段，保持旧v2和未编辑初始场景的提交兼容。教师继续使用提交时冻结的snapshotJson，展示该版本层级；不得从学生当前场景读取历史报告。新模型资源须维护稳定modelRef，后续替换真实模型应在加载层适配，同时释放其纹理和材质。
+
+## 完整课程第一批
+
+LearningApp是双入口根组件，App继续承载原核心实验，保持原会话、引导、v1/v2备份及批阅格式。courseNavigation只保存入口选择。完整课程不复用泵专用SavedState或评分逻辑。
+
+fullCurriculum集中定义四阶段28步与五维评价；教学页面和course:docs共用该定义。fullCourseDomain定义第一阶段配置、错误检查、前置依赖及证据推导；fullCourseStore管理草稿、实体点选、验证与独立持久化。fullCoursePortal保存冻结阶段快照和教师评价。
+
+完整课程使用twin-workshop:full-course:v1，批阅使用twin-workshop:full-course-submissions:v1。记录数据版本full-course-stage1-v1。导入不接受外部成绩字段，按配置、预测观察、先前错误记录、实体凭证和前置成果重算。错误草稿可以导入；模型稳定身份不合法的文件被拒绝。指纹仅检测变更，不提供身份或防篡改保证。
+
+SceneAdapter提供场景、导航、读数和选择回调；原实验通过薄适配器读取原store，完整课程提供独立适配器。buildFactoryScene第三个可选参数接收三设备局部位移，省略时原场景行为不变。完整课程不把其store强转为LabSession。
+
+前置依赖按步骤顺序与相关配置前缀判断，输入说明改变也使依赖成果待复验。验证记录冻结输入和配置；当前有效结果由证据推导。提交快照不跟随草稿变化，教师评价只绑定该快照。
+
+后续按数据治理、交互规则、AI评测、综合验收四批扩展。新增交互应先定义版本化输入、研究变量、实测指标与失败反馈，然后开放任务；不得只改变available标志。检索、问答、异常检测的适配接口已预留，尚无运行服务。新增阶段状态与评分须显式版本升级，不把未实现任务计为完成。
+
+## 共享三维窗口框架
+
+两个入口直接引用SceneWorkbench、SceneTreePanel、SceneView和scene.css。FullCourseScene只提供完整课程适配器和任务附加信息，不再维护工具栏、树、显隐或全屏的另一套实现。FullTaskPanel和FullStepEditor继续处理课程任务输入。
+
+SceneWorkbenchAdapter定义窗口依赖的场景、资产、导航、primary、simulation、模型呈现和编辑能力。coreSceneAdapter绑定原LabSession，fullSceneAdapter绑定独立FullCourseSession；适配器不交换存档或成绩，也不将完整课程状态强转为泵实验状态。primary是各课程当前主动作；simulation为null时，回放控件禁用并显示原因，不生成时钟或运行结果。
+
+SceneWorkbench提供toolbar-actions与scene-overlay具名槽。后续数据接入、回放、状态机和AI任务应通过适配器提供真实控制能力，并在扩展槽中增加场景交互；无需复制窗口或新建渲染器。新增阶段仍需版本化输入、证据、评价和存档，不应只启用按钮。
+
+内部树共用折叠、键盘导航、选择、进入、显隐、模型信息、隔离恢复以及名称归属编辑。完整课程场景修改写回自己的对象模型，保留设备ID和映射，要求相关步骤复验。导航显隐只改变会话浏览状态，不进入报告指纹。
+
+两个入口统一使用应用内全屏；退出恢复body滚动与焦点。scene-workbench-fullscreenchange通知试课引导重新挂载；引导目标位于窗口外时，通过scene-guide的exit-fullscreen动作退出。原生Fullscreen事件兼容保留，现有11步引导目标标记保持。

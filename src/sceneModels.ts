@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { childrenOf,nodeById,worldPosition,type SceneLayout,type SceneNode } from './sceneGraph'
+import type { Equipment } from './domain'
 export interface SceneLabel { nodeId:string; canvas:HTMLCanvasElement; texture:THREE.CanvasTexture; sprite:THREE.Sprite }
 export interface BuiltScene { root:THREE.Group; groups:Map<string,THREE.Group>; labels:SceneLabel[] }
 function material(color:string,metalness=.25){return new THREE.MeshStandardMaterial({color,metalness,roughness:.55})}
@@ -59,7 +60,7 @@ function makeEquipment(node:SceneNode,layout:SceneLayout):THREE.Group {
 
  return g
 }
-export function buildFactoryScene(layout:SceneLayout,levelId:string):BuiltScene {
+export function buildFactoryScene(layout:SceneLayout,levelId:string,positions?:Partial<Record<Equipment,[number,number,number]>>):BuiltScene {
  const root=new THREE.Group(),groups=new Map<string,THREE.Group>(),labels:SceneLabel[]=[]
  let scope=nodeById(layout,levelId)??layout.nodes[0]!
  if(scope.kind==='equipment')scope=nodeById(layout,scope.parentId!)!
@@ -70,7 +71,7 @@ export function buildFactoryScene(layout:SceneLayout,levelId:string):BuiltScene 
   for(let z=-6;z<=10;z+=2)line(room,[new THREE.Vector3(-10,-.06,z),new THREE.Vector3(10,-.06,z)],'#cfddd3')
   decoration(room,scope.modelRef,true)
   const equipment=childrenOf(layout,scope.id).filter(n=>n.kind==='equipment')
-  for(const node of equipment){const g=makeEquipment(node,layout);root.add(g);groups.set(node.id,g);makeLabel(node,g,labels,node.assetId==='tank'?4.4:3.4,3.8)}
+  for(const node of equipment){const g=makeEquipment(node,layout);const offset=positions?.[node.assetId!];if(offset)g.position.add(new THREE.Vector3(...offset));root.add(g);groups.set(node.id,g);makeLabel(node,g,labels,node.assetId==='tank'?4.4:3.4,3.8)}
   if(!equipment.length)makeLabel(scope,room,labels,5.3,10)
  }else{
   if(scope.kind==='factory'){
