@@ -8,21 +8,23 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "vitest run"
+    "test": "vitest run",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
-    "vue": "^3.5.22",
+    "echarts": "^6.0.0",
+    "lucide-vue-next": "^0.468.0",
     "pinia": "^3.0.3",
     "three": "^0.180.0",
-    "echarts": "^6.0.0",
-    "lucide-vue-next": "^0.468.0"
+    "vue": "^3.5.22"
   },
   "devDependencies": {
+    "@types/three": "^0.180.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "gh-pages": "^6.3.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "vue-tsc": "^3.1.1",
-    "@types/three": "^0.180.0",
-    "vitest": "5.0.5"
+    "vitest": "5.0.5",
+    "vue-tsc": "^3.1.1"
   }
 }
